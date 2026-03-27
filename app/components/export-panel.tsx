@@ -1,5 +1,12 @@
-import { BuilderSection } from "./panel-controls";
+"use client";
+
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { ExportCodeCard } from "./export-code-card";
+import { BuilderSection } from "./panel-controls";
 
 type ExportPanelProps = {
   copiedState: string;
@@ -16,70 +23,55 @@ export function BuilderExportPanel({
   generatedAppsScript,
   generatedSetup,
 }: ExportPanelProps) {
+  const [isIntroOpen, setIsIntroOpen] = useState(false);
+
   return (
-    <BuilderSection title="Export Output" description="Copy the exact artifacts a Framer user needs to ship.">
-      <div className="builder-code-grid">
-        <article className="builder-code-card">
-          <header>
-            <div className="builder-code-card-title">
-              <h3>Framer Component.jsx</h3>
-              <span>Live generated</span>
-            </div>
-            <button
-              type="button"
-              className="builder-code-copy"
-              onClick={() => onCopy("framer", generatedFramerCode)}
-              aria-label="Copy Framer component code"
-              title={copiedState === "framer" ? "Copied" : "Copy code"}
-            >
-              {copiedState === "framer" ? "✓" : "⧉"}
-            </button>
-          </header>
-          <ScrollArea className="builder-code-scroll">
-            <pre>{generatedFramerCode}</pre>
+    <>
+      <BuilderSection
+        title="Export Output"
+        description="Copy the exact artifacts a Framer user needs to ship."
+        action={
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsIntroOpen(true)}
+          >
+            Intro
+          </Button>
+        }
+      >
+        <div className="builder-code-grid">
+          <ExportCodeCard
+            title="Framer Component.jsx"
+            description="Live generated"
+            copyKey="framer"
+            copiedState={copiedState}
+            onCopy={onCopy}
+            value={generatedFramerCode}
+          />
+          <ExportCodeCard
+            title="GoogleScript.gs"
+            description="Conditional export"
+            copyKey="script"
+            copiedState={copiedState}
+            onCopy={onCopy}
+            value={generatedAppsScript}
+          />
+        </div>
+      </BuilderSection>
+
+      <Sheet open={isIntroOpen} onOpenChange={setIsIntroOpen}>
+        <SheetContent side="right" className="builder-export-intro-sheet">
+          <SheetTitle>Intro</SheetTitle>
+          <SheetDescription>
+            Quick setup notes for using the exported Framer component and Google Apps Script.
+          </SheetDescription>
+          <ScrollArea className="builder-export-intro-scroll">
+            <pre className="builder-export-intro-copy">{generatedSetup}</pre>
           </ScrollArea>
-        </article>
-        <article className="builder-code-card">
-          <header>
-            <div className="builder-code-card-title">
-              <h3>GoogleScript.gs</h3>
-              <span>Conditional export</span>
-            </div>
-            <button
-              type="button"
-              className="builder-code-copy"
-              onClick={() => onCopy("script", generatedAppsScript)}
-              aria-label="Copy Google Apps Script"
-              title={copiedState === "script" ? "Copied" : "Copy code"}
-            >
-              {copiedState === "script" ? "✓" : "⧉"}
-            </button>
-          </header>
-          <ScrollArea className="builder-code-scroll">
-            <pre>{generatedAppsScript}</pre>
-          </ScrollArea>
-        </article>
-        <article className="builder-code-card">
-          <header>
-            <div className="builder-code-card-title">
-              <h3>Setup Instructions.md</h3>
-              <span>Hand-off ready</span>
-            </div>
-            <button
-              type="button"
-              className="builder-code-copy"
-              onClick={() => onCopy("setup", generatedSetup)}
-              aria-label="Copy setup instructions"
-              title={copiedState === "setup" ? "Copied" : "Copy code"}
-            >
-              {copiedState === "setup" ? "✓" : "⧉"}
-            </button>
-          </header>
-          <ScrollArea className="builder-code-scroll">
-            <pre>{generatedSetup}</pre>
-          </ScrollArea>
-        </article>
-      </div>
-    </BuilderSection>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

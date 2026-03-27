@@ -27,7 +27,7 @@ export function Navigation({
 }: NavigationProps) {
   return (
     <div className="builder-liquid-nav">
-      <nav className="builder-bottom-nav" aria-label="Builder navigation">
+      <nav className="builder-bottom-nav builder-surface" aria-label="Builder navigation">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = activePanel === item.id;

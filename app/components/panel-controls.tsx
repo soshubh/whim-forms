@@ -28,7 +28,7 @@ export function BuilderSection({
   children: ReactNode;
 }) {
   return (
-    <Card className="builder-card">
+    <Card className="builder-card builder-surface">
       <CardHeader className="builder-card-header">
         <BuilderSectionHeader title={title} description={description} action={action} />
       </CardHeader>
@@ -70,7 +70,7 @@ export function BuilderTextInput({
   return (
     <BuilderFieldControl label={label} className={className}>
       <Input
-        className="builder-ui-input"
+        className="builder-ui-control builder-control-surface"
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -95,7 +95,7 @@ export function BuilderTextarea({
   return (
     <BuilderFieldControl label={label} className={className}>
       <Textarea
-        className="builder-ui-textarea"
+        className="builder-ui-control builder-ui-control--multiline builder-control-surface"
         rows={rows}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -120,7 +120,7 @@ export function BuilderSelect({
   return (
     <BuilderFieldControl label={label} className={className}>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="builder-ui-select">
+        <SelectTrigger className="builder-ui-control builder-control-surface">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -139,7 +139,7 @@ export function BuilderCheckbox({
   label,
   checked,
   onChange,
-  className = "builder-checkbox-row",
+  className = "builder-checkbox-row builder-surface",
 }: {
   label: string;
   checked: boolean;
@@ -190,7 +190,7 @@ export function BuilderToggleCard({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="builder-toggle">
+    <label className="builder-toggle builder-surface">
       <Switch checked={checked} onCheckedChange={onChange} />
       <span>{label}</span>
     </label>

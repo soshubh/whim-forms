@@ -17,7 +17,7 @@ import { ControlSheet } from "./components/control-sheet";
 import { BuilderExportPanel } from "./components/export-panel";
 import { Navigation } from "./components/navigation";
 import { BuilderPreviewPanel } from "./components/preview-panel";
-import type { SubmitButtonState } from "./components/form/SubmitButton";
+import type { FormButtonState } from "./components/form/button/types";
 import type { Field, FieldType, WidthOption } from "./components/form/types";
 import {
   DEFAULT_CONFIG,
@@ -42,7 +42,7 @@ export default function Home() {
   const [copiedState, setCopiedState] = useState("");
   const [draggingFieldId, setDraggingFieldId] = useState<string | null>(null);
   const [activePanel, setActivePanel] = useState<ControlPanel>(null);
-  const [previewSubmitState] = useState<SubmitButtonState>("idle");
+  const [previewSubmitState] = useState<FormButtonState>("idle");
   const [workspaceOrientation, setWorkspaceOrientation] = useState<
     "horizontal" | "vertical"
   >("horizontal");
@@ -213,11 +213,9 @@ export default function Home() {
                 setSelectedFieldId(fieldId);
               }}
               onFieldDragEnd={() => setDraggingFieldId(null)}
-              onFieldDrop={(targetFieldId) => {
-                if (draggingFieldId) {
-                  moveFieldTo(draggingFieldId, targetFieldId);
-                  setDraggingFieldId(null);
-                }
+              onFieldDrop={(sourceFieldId, targetFieldId) => {
+                moveFieldTo(sourceFieldId, targetFieldId);
+                setDraggingFieldId(null);
               }}
               onFieldRemove={removeField}
               onFieldWidthSet={setFieldWidth}
@@ -228,7 +226,7 @@ export default function Home() {
               submitState={previewSubmitState}
             />
           </ResizablePanel>
-          <ResizableHandle withHandle className="builder-workspace-handle" />
+          <ResizableHandle className="builder-workspace-handle" />
           <ResizablePanel
             defaultSize={workspaceOrientation === "horizontal" ? 42 : 40}
             minSize={workspaceOrientation === "horizontal" ? 28 : 24}

@@ -111,14 +111,16 @@ function getButtonStyle(props) {
       }
 }
 
-function FieldShell({ label, required, message, children, props }) {
+function FieldShell({ label, required, isLabelVisible, isRequiredVisible, message, isHelperTextVisible, children, props }) {
   return (
     <label style={{ display: "grid", gap: 8 }}>
-      <span style={{ color: props.labelColor, fontWeight: 600, fontSize: 14 }}>
-        {label}{required ? " *" : ""}
-      </span>
+      {isLabelVisible !== false ? (
+        <span style={{ color: props.labelColor, fontWeight: 600, fontSize: 14 }}>
+          {label}{required && isRequiredVisible !== false ? " *" : ""}
+        </span>
+      ) : null}
       {children}
-      {message ? <span style={{ color: props.labelColor, opacity: 0.68, fontSize: 13 }}>{message}</span> : null}
+      {message && isHelperTextVisible !== false ? <span style={{ color: props.labelColor, opacity: 0.68, fontSize: 13 }}>{message}</span> : null}
     </label>
   )
 }`,
@@ -127,7 +129,10 @@ function FieldShell({ label, required, message, children, props }) {
     <FieldShell
       label={field.label}
       required={field.required}
+      isLabelVisible={field.isLabelVisible}
+      isRequiredVisible={field.isRequiredVisible}
       message={field.validationMessage}
+      isHelperTextVisible={field.isHelperTextVisible}
       props={props}
     >
       <input
@@ -145,7 +150,10 @@ function FieldShell({ label, required, message, children, props }) {
     <FieldShell
       label={field.label}
       required={field.required}
+      isLabelVisible={field.isLabelVisible}
+      isRequiredVisible={field.isRequiredVisible}
       message={field.validationMessage}
+      isHelperTextVisible={field.isHelperTextVisible}
       props={props}
     >
       <textarea
@@ -162,7 +170,10 @@ function FieldShell({ label, required, message, children, props }) {
     <FieldShell
       label={field.label}
       required={field.required}
+      isLabelVisible={field.isLabelVisible}
+      isRequiredVisible={field.isRequiredVisible}
       message={field.validationMessage}
+      isHelperTextVisible={field.isHelperTextVisible}
       props={props}
     >
       <select
@@ -183,7 +194,10 @@ function FieldShell({ label, required, message, children, props }) {
     <FieldShell
       label={field.label}
       required={field.required}
+      isLabelVisible={field.isLabelVisible}
+      isRequiredVisible={field.isRequiredVisible}
       message={field.validationMessage}
+      isHelperTextVisible={field.isHelperTextVisible}
       props={props}
     >
       <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
@@ -210,7 +224,7 @@ function FieldShell({ label, required, message, children, props }) {
         checked={Boolean(value)}
         onChange={(event) => onChange(field.id, event.target.checked)}
       />
-      <span>{field.label}{field.required ? " *" : ""}</span>
+      <span>{field.isLabelVisible === false ? "" : field.label + (field.required && field.isRequiredVisible !== false ? " *" : "")}</span>
     </label>
   )
 }`,

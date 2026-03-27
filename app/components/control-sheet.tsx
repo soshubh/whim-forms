@@ -52,7 +52,7 @@ export function ControlSheet({
     <Button
       variant="ghost"
       size="icon-sm"
-      className="builder-section-close"
+      className="builder-section-close builder-surface builder-icon-button"
       aria-label="Close controls"
       onClick={onClose}
     >
@@ -69,13 +69,13 @@ export function ControlSheet({
       >
         <div className="builder-library">
           {FIELD_LIBRARY.map((item) => (
-            <button key={item.type} type="button" className="builder-library-item" onClick={() => addField(item.type)}>
+            <button key={item.type} type="button" className="builder-library-item builder-surface" onClick={() => addField(item.type)}>
               <span className="builder-library-item-row">
                 <span>{item.label}</span>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span
-                      className="builder-library-item-info"
+                      className="builder-library-item-info builder-icon-button"
                       aria-label={item.description}
                     >
                       <InfoOutlineRounded fontSize="inherit" />
@@ -118,6 +118,27 @@ export function ControlSheet({
             label="Required field"
             checked={selectedField.required}
             onChange={(checked) => updateField(selectedField.id, "required", checked)}
+          />
+          <BuilderCheckbox
+            label="Show label"
+            checked={selectedField.isLabelVisible ?? true}
+            onChange={(checked) =>
+              updateField(selectedField.id, "isLabelVisible", checked)
+            }
+          />
+          <BuilderCheckbox
+            label="Show required star"
+            checked={selectedField.isRequiredVisible ?? true}
+            onChange={(checked) =>
+              updateField(selectedField.id, "isRequiredVisible", checked)
+            }
+          />
+          <BuilderCheckbox
+            label="Show helper text"
+            checked={selectedField.isHelperTextVisible ?? true}
+            onChange={(checked) =>
+              updateField(selectedField.id, "isHelperTextVisible", checked)
+            }
           />
           {selectedField.type === "select" || selectedField.type === "radio" ? (
             <BuilderTextarea
