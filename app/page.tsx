@@ -1,65 +1,197 @@
-import Image from "next/image";
+"use client";
+
+import { useMemo, useState } from "react";
+
+import { ControlSheet } from "./components/control-sheet";
+import { BuilderExportPanel } from "./components/export-panel";
+import { Navigation } from "./components/navigation";
+import { BuilderPreviewPanel } from "./components/preview-panel";
+import type { SubmitButtonState } from "./components/form/SubmitButton";
+import type { Field, FieldType, WidthOption } from "./components/form/types";
+import {
+  DEFAULT_CONFIG,
+  defaultField,
+  fieldWidthClass,
+  getLayoutForPreview,
+  type ControlPanel,
+  type PreviewMode,
+} from "./lib/builder-config";
+import {
+  generateAppsScript,
+  generateFramerComponent,
+  generateSetupInstructions,
+} from "./lib/code-generators";
 
 export default function Home() {
+  const [config, setConfig] = useState(DEFAULT_CONFIG);
+  const [selectedFieldId, setSelectedFieldId] = useState(
+    DEFAULT_CONFIG.fields[0]?.id ?? "",
+  );
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
+  const [copiedState, setCopiedState] = useState("");
+  const [draggingFieldId, setDraggingFieldId] = useState<string | null>(null);
+  const [activePanel, setActivePanel] = useState<ControlPanel>(null);
+  const [previewSubmitState] = useState<SubmitButtonState>("idle");
+
+  const selectedField =
+    config.fields.find((field) => field.id === selectedFieldId) ??
+    config.fields[0];
+  const activeLayout = getLayoutForPreview(config.styling, previewMode);
+
+  const generatedFramerCode = useMemo(
+    () => generateFramerComponent(config),
+    [config],
+  );
+  const generatedAppsScript = useMemo(
+    () => generateAppsScript(config),
+    [config],
+  );
+  const generatedSetup = useMemo(
+    () => generateSetupInstructions(config),
+    [config],
+  );
+
+  const updateField = <K extends keyof Field>(
+    id: string,
+    key: K,
+    value: Field[K],
+  ) => {
+    setConfig((current) => ({
+      ...current,
+      fields: current.fields.map((field) =>
+        field.id === id ? { ...field, [key]: value } : field,
+      ),
+    }));
+  };
+
+  const addField = (type: FieldType) => {
+    const newField = defaultField(type, config.fields.length);
+    setConfig((current) => ({
+      ...current,
+      fields: [...current.fields, newField],
+    }));
+    setSelectedFieldId(newField.id);
+  };
+
+  const moveFieldTo = (sourceId: string, targetId: string) => {
+    const sourceIndex = config.fields.findIndex(
+      (field) => field.id === sourceId,
+    );
+    const targetIndex = config.fields.findIndex(
+      (field) => field.id === targetId,
+    );
+
+    if (sourceIndex < 0 || targetIndex < 0 || sourceIndex === targetIndex) {
+      return;
+    }
+
+    const fields = [...config.fields];
+    const [field] = fields.splice(sourceIndex, 1);
+    fields.splice(targetIndex, 0, field);
+
+    setConfig((current) => ({ ...current, fields }));
+  };
+
+  const removeField = (id: string) => {
+    const fields = config.fields.filter((field) => field.id !== id);
+    setConfig((current) => ({ ...current, fields }));
+
+    if (selectedFieldId === id && fields.length > 0) {
+      setSelectedFieldId(fields[0].id);
+    }
+  };
+
+  const setFieldWidth = (id: string, nextWidth: WidthOption) => {
+    setConfig((current) => ({
+      ...current,
+      fields: current.fields.map((field) => {
+        if (field.id !== id) {
+          return field;
+        }
+
+        if (previewMode === "tablet") {
+          return { ...field, tabletWidth: nextWidth };
+        }
+
+        if (previewMode === "mobile") {
+          return { ...field, mobileWidth: nextWidth };
+        }
+
+        return { ...field, width: nextWidth };
+      }),
+    }));
+  };
+
+  const copyText = async (label: string, value: string) => {
+    await navigator.clipboard.writeText(value);
+    setCopiedState(label);
+    window.setTimeout(() => setCopiedState(""), 1800);
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="builder-shell">
+      <div className="builder-workspace">
+        <div className="builder-preview-panel">
+          <BuilderPreviewPanel
+            fields={config.fields}
+            layout={activeLayout}
+            previewMode={previewMode}
+            onPreviewModeChange={setPreviewMode}
+            selectedFieldId={selectedFieldId}
+            draggingFieldId={draggingFieldId}
+            onFieldSelect={setSelectedFieldId}
+            onFieldDragStart={(fieldId) => {
+              setDraggingFieldId(fieldId);
+              setSelectedFieldId(fieldId);
+            }}
+            onFieldDragEnd={() => setDraggingFieldId(null)}
+            onFieldDrop={(targetFieldId) => {
+              if (draggingFieldId) {
+                moveFieldTo(draggingFieldId, targetFieldId);
+                setDraggingFieldId(null);
+              }
+            }}
+            onFieldRemove={removeField}
+            onFieldWidthSet={setFieldWidth}
+            getFieldWidthClass={fieldWidthClass}
+            styling={config.styling}
+            integrations={config.integrations}
+            formSettings={config.formSettings}
+            submitState={previewSubmitState}
+          />
+
+          <BuilderExportPanel
+            copiedState={copiedState}
+            onCopy={copyText}
+            generatedFramerCode={generatedFramerCode}
+            generatedAppsScript={generatedAppsScript}
+            generatedSetup={generatedSetup}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </div>
+
+      {activePanel ? (
+        <div className="builder-control-modal">
+          <ControlSheet
+            activePanel={activePanel}
+            config={config}
+            selectedField={selectedField}
+            addField={addField}
+            updateField={updateField}
+            setConfig={setConfig}
+            onClose={() => setActivePanel(null)}
+            previewMode={previewMode}
+          />
         </div>
-      </main>
-    </div>
+      ) : null}
+
+      <Navigation
+        activePanel={activePanel}
+        hasSelectedField={Boolean(selectedField)}
+        onChange={(panel) =>
+          setActivePanel((current) => (current === panel ? null : panel))
+        }
+      />
+    </main>
   );
 }
