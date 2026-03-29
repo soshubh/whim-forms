@@ -51,11 +51,11 @@ export function generateFramerComponent(config: BuilderConfig) {
       : "";
   const integrationControls = [
     config.integrations.otpEnabled &&
-      `otpWebhookUrl: { type: ControlType.String, title: "OTP URL", defaultValue: "" }`,
+      `otpUrl: { type: ControlType.String, title: "OTP URL", defaultValue: "" }`,
     config.integrations.sheetsEnabled &&
-      `googleSheetsUrl: { type: ControlType.String, title: "Sheets URL", defaultValue: "" }`,
+      `sheetsUrl: { type: ControlType.String, title: "Sheets URL", defaultValue: "" }`,
     config.integrations.webhookEnabled &&
-      `fullDataWebhookUrl: { type: ControlType.String, title: "Webhook URL", defaultValue: "" }`,
+      `webhookUrl: { type: ControlType.String, title: "Webhook URL", defaultValue: "" }`,
     config.integrations.redirectEnabled &&
       `redirectUrl: { type: ControlType.String, title: "Redirect URL", defaultValue: "" }`,
   ]
@@ -63,47 +63,105 @@ export function generateFramerComponent(config: BuilderConfig) {
     .join(",\n  ");
   const googleSheetsSubmission = config.integrations.sheetsEnabled
     ? `
-      if (props.googleSheetsUrl) {
-        await fetch(props.googleSheetsUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      if (sheetsUrl) {
+        console.log("[Form Debug] Sending Google Sheets request", {
+          url: sheetsUrl,
+          payload,
+        })
+        const googleSheetsResponse = await postToSheet(sheetsUrl, payload, "GOOGLE_SHEETS");
+        console.log("[Form Debug] Google Sheets response", {
+          ok: googleSheetsResponse.ok,
+          data: googleSheetsResponse.data ?? null,
+          error: googleSheetsResponse.error ?? null,
+        })
       }`
     : "";
   const fullDataSubmission = config.integrations.webhookEnabled
     ? `
-      if (props.fullDataWebhookUrl) {
-        await fetch(props.fullDataWebhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
+      if (webhookUrl) {
+        const webhookParams = buildWebhookParams(payload)
+        console.log("[Form Debug] Sending webhook request", {
+          url: webhookUrl,
+          payload,
+          encoded: webhookParams.toString(),
+        })
+        const webhookResponse = await postToWebhook(webhookUrl, webhookParams, "WEBHOOK");
+        console.log("[Form Debug] Webhook response", {
+          ok: webhookResponse.ok,
+          error: webhookResponse.error ?? null,
+        })
       }`
     : "";
   const otpSubmission = config.integrations.otpEnabled
     ? `
-    if (props.otpWebhookUrl) {
-      await fetch(props.otpWebhookUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phone: ${phoneFieldId ? `values["${phoneFieldId}"] || ""` : `""`},
-          email: ${emailFieldId ? `values["${emailFieldId}"] || ""` : `""`},
-        }),
-      })
+    if (otpUrl) {
+      const otpParams = new URLSearchParams()
+      otpParams.append("phone", ${phoneFieldId ? `String(values["${phoneFieldId}"] || "")` : `""`})
+      otpParams.append("email", ${emailFieldId ? `String(values["${emailFieldId}"] || "")` : `""`})
+      await postToWebhook(otpUrl, otpParams, "OTP")
     }`
     : "";
   const redirectSubmission = config.integrations.redirectEnabled
     ? `
-    if (props.redirectUrl) {
-      window.location.assign(props.redirectUrl)
+    if (redirectUrl) {
+      window.location.assign(redirectUrl)
       return
     }`
     : "";
 
   const generatedComponents = [
-    `function getFormPadding(props) {
+    `async function postToSheet(url, data, label) {
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify(data),
+    })
+    const text = await response.text()
+
+    try {
+      return { ok: true, data: JSON.parse(text) }
+    } catch {
+      return { ok: true, data: text }
+    }
+  } catch (error) {
+    console.error(\`[Form Debug] \${label} request failed\`, error)
+    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
+
+async function postToWebhook(url, params, label) {
+  try {
+    await fetch(url, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: params.toString(),
+    })
+    return { ok: true }
+  } catch (error) {
+    console.error(\`[Form Debug] \${label} request failed\`, error)
+    return { ok: false, error: error instanceof Error ? error.message : String(error) }
+  }
+}
+
+function buildWebhookParams(payload) {
+  const params = new URLSearchParams()
+  params.append("submittedAt", String(payload.submittedAt || ""))
+
+  Object.entries(payload.values || {}).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      params.append(key, value.join(", "))
+      return
+    }
+
+    params.append(key, String(value ?? ""))
+  })
+
+  return params
+}
+
+function getFormPadding(props) {
   if (props.formPaddingMode === "individual") {
     return \`\${props.formPaddingTop}px \${props.formPaddingRight}px \${props.formPaddingBottom}px \${props.formPaddingLeft}px\`
   }
@@ -681,13 +739,17 @@ export default function ${componentName}(props) {
   const [submitState, setSubmitState] = React.useState("idle")
   const [focusedFieldId, setFocusedFieldId] = React.useState(null)
   const [viewportWidth, setViewportWidth] = React.useState(() => getViewportWidth())
+  const otpUrl = props.otpUrl || props.otpWebhookUrl || ""
+  const sheetsUrl = props.sheetsUrl || props.googleSheetsUrl || ""
+  const webhookUrl = props.webhookUrl || props.fullDataWebhookUrl || ""
+  const redirectUrl = props.redirectUrl || ""
 
   const handleChange = React.useCallback((fieldId, nextValue) => {
     setValues((current) => ({ ...current, [fieldId]: nextValue }))
   }, [])
 
   const handleOtp = React.useCallback(async () => {${otpSubmission}
-  }, [props.otpWebhookUrl, values])
+  }, [otpUrl, values])
 
   const handleBack = React.useCallback(() => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -712,12 +774,31 @@ export default function ${componentName}(props) {
       submittedAt: new Date().toISOString(),
       values,
     }
+
+    console.log("[Form Debug] Submit started", {
+      payload,
+      integrations: {
+        sheetsUrl,
+        webhookUrl,
+        redirectUrl,
+        hasGoogleSheetsUrl: Boolean(sheetsUrl),
+        hasWebhookUrl: Boolean(webhookUrl),
+        hasRedirectUrl: Boolean(redirectUrl),
+      },
+    })
+
+    try {
 ${googleSheetsSubmission}
 ${fullDataSubmission}
 
-    setSubmitState("success")
+      console.log("[Form Debug] Submit succeeded")
+      setSubmitState("success")
 ${redirectSubmission}
-  }, [props.fullDataWebhookUrl, props.googleSheetsUrl, props.redirectUrl, values])
+    } catch (error) {
+      console.error("[Form Debug] Submit failed", error)
+      setSubmitState("error")
+    }
+  }, [redirectUrl, sheetsUrl, values, webhookUrl])
 
   const activeMode = getActiveMode(props, viewportWidth)
   const activeLayout = getLayoutForViewport(props, viewportWidth)
