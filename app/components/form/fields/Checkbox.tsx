@@ -11,10 +11,19 @@ export function Checkbox({ field }: FormFieldComponentProps) {
       isRequiredVisible={field.isRequiredVisible}
       isHelperTextVisible={field.isHelperTextVisible}
     >
-      <label className="form-element-choice-item form-element-choice-item--inline form-choice-control">
-        <input type="checkbox" />
-        <span>{field.label}</span>
-      </label>
+      <div className="form-element-choice-list">
+        {(field.options && field.options.length > 0 ? field.options : [field.label]).map(
+          (option, index) => (
+            <label
+              key={`${field.id}-${index}`}
+              className="form-element-choice-item form-choice-control"
+            >
+              <input type="checkbox" />
+              <span>{option}</span>
+            </label>
+          ),
+        )}
+      </div>
     </Shell>
   );
 }

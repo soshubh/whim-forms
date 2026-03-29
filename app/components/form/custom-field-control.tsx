@@ -87,7 +87,7 @@ export function CustomSelectControl({
     <div className="form-element-visual-control is-select">
       <ControlSurface
         value={value}
-        placeholder={placeholder || "Select an option"}
+        placeholder={placeholder ?? "Select an option"}
         trailing={
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path
@@ -105,7 +105,7 @@ export function CustomSelectControl({
         value={value}
         onChange={(event) => setValue(event.target.value)}
       >
-        <option value="">{placeholder || "Select an option"}</option>
+        <option value="">{placeholder ?? "Select an option"}</option>
         {options.map((option, index) => (
           <option key={`${option}-${index}`} value={option}>
             {option}

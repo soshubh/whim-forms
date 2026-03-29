@@ -5,9 +5,12 @@ import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 
 import {
   getLayoutForPreview,
+  resolveStylingForPreview,
+  updateStylingForPreview,
   type BuilderConfig,
   type LayoutMode,
   type PreviewMode,
+  type StylingValues,
 } from "../../lib/builder-config";
 import {
   ColorInputRow,
@@ -23,6 +26,17 @@ import {
 } from "./inspector-primitives";
 import { SystemButton } from "../system-button";
 import type { RightPanelTab } from "./types";
+
+function updateConfigForPreview(
+  current: BuilderConfig,
+  previewMode: PreviewMode,
+  patch: Partial<StylingValues>,
+): BuilderConfig {
+  return {
+    ...current,
+    styling: updateStylingForPreview(current.styling, previewMode, patch),
+  };
+}
 
 const FONT_WEIGHT_OPTIONS = [
   { value: 300, label: "300" },
@@ -214,12 +228,14 @@ function PaddingRow({
 
 function FormPaddingRow({
   config,
+  previewMode,
   onConfigChange,
 }: {
   config: BuilderConfig;
+  previewMode: PreviewMode;
   onConfigChange: Dispatch<SetStateAction<BuilderConfig>>;
 }) {
-  const styling = config.styling;
+  const styling = resolveStylingForPreview(config.styling, previewMode);
 
   return (
     <PaddingRow
@@ -237,71 +253,33 @@ function FormPaddingRow({
       bottomAriaLabel="Form padding bottom"
       leftAriaLabel="Form padding left"
       onAllChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPadding: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPadding: value }))
       }
       onUseAll={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPaddingMode: "all",
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPaddingMode: "all" }))
       }
       onUseIndividual={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
+        onConfigChange((current) =>
+          updateConfigForPreview(current, previewMode, {
             formPaddingMode: "individual",
-            formPaddingTop: current.styling.formPadding,
-            formPaddingRight: current.styling.formPadding,
-            formPaddingBottom: current.styling.formPadding,
-            formPaddingLeft: current.styling.formPadding,
-          },
-        }))
+            formPaddingTop: resolveStylingForPreview(current.styling, previewMode).formPadding,
+            formPaddingRight: resolveStylingForPreview(current.styling, previewMode).formPadding,
+            formPaddingBottom: resolveStylingForPreview(current.styling, previewMode).formPadding,
+            formPaddingLeft: resolveStylingForPreview(current.styling, previewMode).formPadding,
+          }),
+        )
       }
       onTopChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPaddingTop: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPaddingTop: value }))
       }
       onRightChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPaddingRight: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPaddingRight: value }))
       }
       onBottomChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPaddingBottom: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPaddingBottom: value }))
       }
       onLeftChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            formPaddingLeft: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { formPaddingLeft: value }))
       }
     />
   );
@@ -309,12 +287,14 @@ function FormPaddingRow({
 
 function InputPaddingRow({
   config,
+  previewMode,
   onConfigChange,
 }: {
   config: BuilderConfig;
+  previewMode: PreviewMode;
   onConfigChange: Dispatch<SetStateAction<BuilderConfig>>;
 }) {
-  const styling = config.styling;
+  const styling = resolveStylingForPreview(config.styling, previewMode);
 
   return (
     <PaddingRow
@@ -332,71 +312,33 @@ function InputPaddingRow({
       bottomAriaLabel="Input padding bottom"
       leftAriaLabel="Input padding left"
       onAllChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPadding: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPadding: value }))
       }
       onUseAll={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPaddingMode: "all",
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPaddingMode: "all" }))
       }
       onUseIndividual={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
+        onConfigChange((current) =>
+          updateConfigForPreview(current, previewMode, {
             inputPaddingMode: "individual",
-            inputPaddingTop: current.styling.inputPadding,
-            inputPaddingRight: current.styling.inputPadding,
-            inputPaddingBottom: current.styling.inputPadding,
-            inputPaddingLeft: current.styling.inputPadding,
-          },
-        }))
+            inputPaddingTop: resolveStylingForPreview(current.styling, previewMode).inputPadding,
+            inputPaddingRight: resolveStylingForPreview(current.styling, previewMode).inputPadding,
+            inputPaddingBottom: resolveStylingForPreview(current.styling, previewMode).inputPadding,
+            inputPaddingLeft: resolveStylingForPreview(current.styling, previewMode).inputPadding,
+          }),
+        )
       }
       onTopChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPaddingTop: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPaddingTop: value }))
       }
       onRightChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPaddingRight: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPaddingRight: value }))
       }
       onBottomChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPaddingBottom: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPaddingBottom: value }))
       }
       onLeftChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            inputPaddingLeft: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { inputPaddingLeft: value }))
       }
     />
   );
@@ -404,12 +346,14 @@ function InputPaddingRow({
 
 function ButtonPaddingRow({
   config,
+  previewMode,
   onConfigChange,
 }: {
   config: BuilderConfig;
+  previewMode: PreviewMode;
   onConfigChange: Dispatch<SetStateAction<BuilderConfig>>;
 }) {
-  const styling = config.styling;
+  const styling = resolveStylingForPreview(config.styling, previewMode);
 
   return (
     <PaddingRow
@@ -427,71 +371,33 @@ function ButtonPaddingRow({
       bottomAriaLabel="Button padding bottom"
       leftAriaLabel="Button padding left"
       onAllChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPadding: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPadding: value }))
       }
       onUseAll={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPaddingMode: "all",
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPaddingMode: "all" }))
       }
       onUseIndividual={() =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
+        onConfigChange((current) =>
+          updateConfigForPreview(current, previewMode, {
             buttonPaddingMode: "individual",
-            buttonPaddingTop: current.styling.buttonPadding,
-            buttonPaddingRight: current.styling.buttonPadding,
-            buttonPaddingBottom: current.styling.buttonPadding,
-            buttonPaddingLeft: current.styling.buttonPadding,
-          },
-        }))
+            buttonPaddingTop: resolveStylingForPreview(current.styling, previewMode).buttonPadding,
+            buttonPaddingRight: resolveStylingForPreview(current.styling, previewMode).buttonPadding,
+            buttonPaddingBottom: resolveStylingForPreview(current.styling, previewMode).buttonPadding,
+            buttonPaddingLeft: resolveStylingForPreview(current.styling, previewMode).buttonPadding,
+          }),
+        )
       }
       onTopChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPaddingTop: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPaddingTop: value }))
       }
       onRightChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPaddingRight: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPaddingRight: value }))
       }
       onBottomChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPaddingBottom: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPaddingBottom: value }))
       }
       onLeftChange={(value) =>
-        onConfigChange((current) => ({
-          ...current,
-          styling: {
-            ...current.styling,
-            buttonPaddingLeft: value,
-          },
-        }))
+        onConfigChange((current) => updateConfigForPreview(current, previewMode, { buttonPaddingLeft: value }))
       }
     />
   );
@@ -540,15 +446,115 @@ function TypographyRow({
 }
 
 function StylePanel({
+  variant,
   config,
   previewMode,
   onConfigChange,
 }: {
+  variant: "basic" | "advanced";
   config: BuilderConfig;
   previewMode: PreviewMode;
   onConfigChange: Dispatch<SetStateAction<BuilderConfig>>;
 }) {
   const effectiveLayout = getLayoutForPreview(config.styling, previewMode);
+  const styling = resolveStylingForPreview(config.styling, previewMode);
+
+  if (variant === "basic") {
+    return (
+      <InspectorShell title="Settings" badge="essentials">
+        <InspectorCard title="Layout">
+          <SelectRow
+            label={
+              previewMode === "desktop"
+                ? "Desktop layout"
+                : previewMode === "tablet"
+                  ? "Tablet layout"
+                  : "Mobile layout"
+            }
+            value={effectiveLayout}
+            onChange={(event) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, {
+                  layout: event.target.value as LayoutMode,
+                }),
+              )
+            }
+          >
+            <option value="1-col">1 column</option>
+            <option value="2-col">2 column</option>
+          </SelectRow>
+          <SelectRow
+            label="Button style"
+            value={styling.buttonStyle}
+            onChange={(event) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, {
+                  buttonStyle: event.target.value as BuilderConfig["styling"]["buttonStyle"],
+                }),
+              )
+            }
+          >
+            <option value="solid">Solid</option>
+            <option value="outline">Outline</option>
+          </SelectRow>
+        </InspectorCard>
+
+        <InspectorCard title="Theme">
+          <ColorInputRow
+            label="Section surface"
+            value={styling.sectionSurfaceColor}
+            onChange={(value) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, { sectionSurfaceColor: value }),
+              )
+            }
+          />
+          <ColorInputRow
+            label="Field surface"
+            value={styling.fieldSurfaceColor}
+            onChange={(value) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, { fieldSurfaceColor: value }),
+              )
+            }
+          />
+          <ColorInputRow
+            label="Button color"
+            value={styling.primaryColor}
+            onChange={(value) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, {
+                  primaryColor: value,
+                  fieldFocusColor: value,
+                  buttonBorderColor: value,
+                }),
+              )
+            }
+          />
+        </InspectorCard>
+
+        <InspectorCard title="Shape">
+          <TextInputRow
+            label="Radius"
+            type="number"
+            min={0}
+            max={48}
+            value={styling.fieldRadius}
+            onChange={(event) =>
+              onConfigChange((current) =>
+                updateConfigForPreview(current, previewMode, {
+                  sectionRadius: Number(event.target.value || 0),
+                  fieldRadius: Number(event.target.value || 0),
+                  buttonRadius: Number(event.target.value || 0),
+                }),
+              )
+            }
+          />
+        </InspectorCard>
+      </InspectorShell>
+    );
+  }
+
   const tinyControlTextMessage =
     "Native input and button controls may still render larger in some browsers below 10px.";
 
@@ -581,24 +587,11 @@ function StylePanel({
           }
           value={effectiveLayout}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling:
-                previewMode === "tablet"
-                  ? {
-                      ...current.styling,
-                      tabletLayout: event.target.value as LayoutMode,
-                    }
-                  : previewMode === "mobile"
-                    ? {
-                        ...current.styling,
-                        mobileLayout: event.target.value as LayoutMode,
-                      }
-                    : {
-                        ...current.styling,
-                        layout: event.target.value as LayoutMode,
-                      },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
+                layout: event.target.value as LayoutMode,
+              }),
+            )
           }
         >
           <option value="1-col">1 column</option>
@@ -607,21 +600,19 @@ function StylePanel({
       </InspectorCard>
 
       <InspectorCard title="Section">
-        <FormPaddingRow config={config} onConfigChange={onConfigChange} />
+        <FormPaddingRow config={config} previewMode={previewMode} onConfigChange={onConfigChange} />
         <TextInputRow
           label="Section gap"
           type="number"
           min={0}
           max={48}
-          value={config.styling.sectionGap}
+          value={styling.sectionGap}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 sectionGap: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TextInputRow
@@ -629,15 +620,13 @@ function StylePanel({
           type="number"
           min={0}
           max={48}
-          value={config.styling.sectionRadius}
+          value={styling.sectionRadius}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 sectionRadius: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TextInputRow
@@ -646,105 +635,132 @@ function StylePanel({
           min={0}
           max={12}
           step={0.1}
-          value={config.styling.sectionBorderWidth}
+          value={styling.sectionBorderWidth}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 sectionBorderWidth: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
+        <ToggleRow
+          label="Show heading"
+          checked={styling.showHeading}
+          onChange={(checked) =>
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { showHeading: checked }),
+            )
+          }
+        />
+        <ToggleRow
+          label="Show subtext"
+          checked={styling.showSubtext}
+          onChange={(checked) =>
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { showSubtext: checked }),
+            )
+          }
+        />
+        {styling.showHeading ? (
+          <TextInputRow
+            label="Heading text"
+            value={config.formSettings.pageName}
+            onChange={(event) =>
+              onConfigChange((current) => ({
+                ...current,
+                formSettings: {
+                  ...current.formSettings,
+                  pageName: event.target.value,
+                },
+              }))
+            }
+          />
+        ) : null}
+        {styling.showSubtext ? (
+          <TextareaRow
+            label="Subtext"
+            rows={3}
+            value={config.formSettings.successMessage}
+            onChange={(event) =>
+              onConfigChange((current) => ({
+                ...current,
+                formSettings: {
+                  ...current.formSettings,
+                  successMessage: event.target.value,
+                },
+              }))
+            }
+          />
+        ) : null}
         <TypographyRow
           label="Heading"
-          sizeValue={config.styling.titleSize}
+          sizeValue={styling.titleSize}
           sizeMin={10}
           sizeMax={40}
-          weightValue={config.styling.titleWeight}
+          weightValue={styling.titleWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                titleSize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { titleSize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                titleWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { titleWeight: value }),
+            )
           }
         />
         <TypographyRow
           label="Subtext"
-          sizeValue={config.styling.bodySize}
+          sizeValue={styling.bodySize}
           sizeMin={8}
           sizeMax={24}
-          weightValue={config.styling.bodyWeight}
+          weightValue={styling.bodyWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                bodySize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { bodySize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                bodyWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { bodyWeight: value }),
+            )
           }
         />
         <ColorInputRow
           label="Surface"
-          value={config.styling.sectionSurfaceColor}
+          value={styling.sectionSurfaceColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, sectionSurfaceColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { sectionSurfaceColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Border"
-          value={config.styling.sectionBorderColor}
+          value={styling.sectionBorderColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, sectionBorderColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { sectionBorderColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Heading color"
-          value={config.styling.sectionTitleColor}
+          value={styling.sectionTitleColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, sectionTitleColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { sectionTitleColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Subtext color"
-          value={config.styling.sectionBodyColor}
+          value={styling.sectionBodyColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, sectionBodyColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { sectionBodyColor: value }),
+            )
           }
         />
       </InspectorCard>
@@ -755,32 +771,28 @@ function StylePanel({
           type="number"
           min={0}
           max={40}
-          value={config.styling.fieldGap}
+          value={styling.fieldGap}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 fieldGap: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
-        <InputPaddingRow config={config} onConfigChange={onConfigChange} />
+        <InputPaddingRow config={config} previewMode={previewMode} onConfigChange={onConfigChange} />
         <TextInputRow
           label="Field radius"
           type="number"
           min={0}
           max={32}
-          value={config.styling.fieldRadius}
+          value={styling.fieldRadius}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 fieldRadius: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TextInputRow
@@ -789,15 +801,13 @@ function StylePanel({
           min={0}
           max={12}
           step={0.1}
-          value={config.styling.fieldBorderWidth}
+          value={styling.fieldBorderWidth}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 fieldBorderWidth: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TextInputRow
@@ -806,160 +816,127 @@ function StylePanel({
           min={0}
           max={12}
           step={0.1}
-          value={config.styling.fieldFocusWidth}
+          value={styling.fieldFocusWidth}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 fieldFocusWidth: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TypographyRow
           label="Label"
-          sizeValue={config.styling.labelSize}
+          sizeValue={styling.labelSize}
           sizeMin={8}
           sizeMax={20}
-          weightValue={config.styling.labelWeight}
+          weightValue={styling.labelWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                labelSize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { labelSize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                labelWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { labelWeight: value }),
+            )
           }
         />
         <TypographyRow
           label="Helper text"
-          sizeValue={config.styling.helperSize}
+          sizeValue={styling.helperSize}
           sizeMin={8}
           sizeMax={20}
-          weightValue={config.styling.helperWeight}
+          weightValue={styling.helperWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                helperSize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { helperSize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                helperWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { helperWeight: value }),
+            )
           }
         />
         <TypographyRow
-          label={getControlTextLabel("Input text", config.styling.inputTextSize < 10)}
-          sizeValue={config.styling.inputTextSize}
+          label={getControlTextLabel("Input text", styling.inputTextSize < 10)}
+          sizeValue={styling.inputTextSize}
           sizeMin={8}
           sizeMax={24}
-          weightValue={config.styling.inputTextWeight}
+          weightValue={styling.inputTextWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                inputTextSize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { inputTextSize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                inputTextWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { inputTextWeight: value }),
+            )
           }
         />
         <ColorInputRow
           label="Surface"
-          value={config.styling.fieldSurfaceColor}
+          value={styling.fieldSurfaceColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldSurfaceColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldSurfaceColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Border"
-          value={config.styling.fieldBorderColor}
+          value={styling.fieldBorderColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldBorderColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldBorderColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Text"
-          value={config.styling.fieldTextColor}
+          value={styling.fieldTextColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldTextColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldTextColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Label color"
-          value={config.styling.fieldLabelColor}
+          value={styling.fieldLabelColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldLabelColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldLabelColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Helper color"
-          value={config.styling.fieldHelperColor}
+          value={styling.fieldHelperColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldHelperColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldHelperColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Placeholder"
-          value={config.styling.fieldPlaceholderColor}
+          value={styling.fieldPlaceholderColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldPlaceholderColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldPlaceholderColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Focus"
-          value={config.styling.fieldFocusColor}
+          value={styling.fieldFocusColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, fieldFocusColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { fieldFocusColor: value }),
+            )
           }
         />
       </InspectorCard>
@@ -967,35 +944,31 @@ function StylePanel({
       <InspectorCard title="Buttons">
         <SelectRow
           label="Button style"
-          value={config.styling.buttonStyle}
+          value={styling.buttonStyle}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 buttonStyle: event.target.value as BuilderConfig["styling"]["buttonStyle"],
-              },
-            }))
+              }),
+            )
           }
         >
           <option value="solid">Solid</option>
           <option value="outline">Outline</option>
         </SelectRow>
-        <ButtonPaddingRow config={config} onConfigChange={onConfigChange} />
+        <ButtonPaddingRow config={config} previewMode={previewMode} onConfigChange={onConfigChange} />
         <TextInputRow
           label="Button radius"
           type="number"
           min={0}
           max={32}
-          value={config.styling.buttonRadius}
+          value={styling.buttonRadius}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 buttonRadius: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TextInputRow
@@ -1004,112 +977,57 @@ function StylePanel({
           min={0}
           max={12}
           step={0.1}
-          value={config.styling.buttonBorderWidth}
+          value={styling.buttonBorderWidth}
           onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, {
                 buttonBorderWidth: Number(event.target.value || 0),
-              },
-            }))
+              }),
+            )
           }
         />
         <TypographyRow
-          label={getControlTextLabel("Button text", config.styling.buttonTextSize < 10)}
-          sizeValue={config.styling.buttonTextSize}
+          label={getControlTextLabel("Button text", styling.buttonTextSize < 10)}
+          sizeValue={styling.buttonTextSize}
           sizeMin={8}
           sizeMax={24}
-          weightValue={config.styling.buttonTextWeight}
+          weightValue={styling.buttonTextWeight}
           onSizeChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                buttonTextSize: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { buttonTextSize: value }),
+            )
           }
           onWeightChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: {
-                ...current.styling,
-                buttonTextWeight: value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { buttonTextWeight: value }),
+            )
           }
         />
         <ColorInputRow
           label="Button color"
-          value={config.styling.primaryColor}
+          value={styling.primaryColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, primaryColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { primaryColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Border"
-          value={config.styling.buttonBorderColor}
+          value={styling.buttonBorderColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, buttonBorderColor: value },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { buttonBorderColor: value }),
+            )
           }
         />
         <ColorInputRow
           label="Text color"
-          value={config.styling.buttonTextColor}
+          value={styling.buttonTextColor}
           onChange={(value) =>
-            onConfigChange((current) => ({
-              ...current,
-              styling: { ...current.styling, buttonTextColor: value },
-            }))
-          }
-        />
-      </InspectorCard>
-    </InspectorShell>
-  );
-}
-
-function FormSettingsPanel({
-  config,
-  onConfigChange,
-}: {
-  config: BuilderConfig;
-  onConfigChange: Dispatch<SetStateAction<BuilderConfig>>;
-}) {
-  return (
-    <InspectorShell title="Form Settings" badge="content">
-      <InspectorCard title="Copy">
-        <TextInputRow
-          label="Page name"
-          value={config.formSettings.pageName}
-          onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              formSettings: {
-                ...current.formSettings,
-                pageName: event.target.value,
-              },
-            }))
-          }
-        />
-        <TextareaRow
-          label="Success message"
-          rows={4}
-          value={config.formSettings.successMessage}
-          onChange={(event) =>
-            onConfigChange((current) => ({
-              ...current,
-              formSettings: {
-                ...current.formSettings,
-                successMessage: event.target.value,
-              },
-            }))
+            onConfigChange((current) =>
+              updateConfigForPreview(current, previewMode, { buttonTextColor: value }),
+            )
           }
         />
       </InspectorCard>
@@ -1173,6 +1091,7 @@ function IntegrationsPanel({
 }
 
 type SettingsModePanelProps = {
+  variant: "basic" | "advanced";
   activeTab: RightPanelTab;
   config: BuilderConfig;
   previewMode: PreviewMode;
@@ -1181,6 +1100,7 @@ type SettingsModePanelProps = {
 };
 
 export function SettingsModePanel({
+  variant,
   activeTab,
   config,
   previewMode,
@@ -1199,13 +1119,6 @@ export function SettingsModePanel({
         </button>
         <button
           type="button"
-          className={`builder-app-code-tab ${activeTab === "form" ? "is-active" : ""}`}
-          onClick={() => onTabChange("form")}
-        >
-          Form
-        </button>
-        <button
-          type="button"
           className={`builder-app-code-tab ${activeTab === "integrations" ? "is-active" : ""}`}
           onClick={() => onTabChange("integrations")}
         >
@@ -1215,15 +1128,9 @@ export function SettingsModePanel({
 
       {activeTab === "style" ? (
         <StylePanel
+          variant={variant}
           config={config}
           previewMode={previewMode}
-          onConfigChange={onConfigChange}
-        />
-      ) : null}
-
-      {activeTab === "form" ? (
-        <FormSettingsPanel
-          config={config}
           onConfigChange={onConfigChange}
         />
       ) : null}

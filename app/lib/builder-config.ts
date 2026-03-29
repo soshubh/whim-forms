@@ -5,76 +5,92 @@ import { getDefaultButtonIcons } from "./button-icons";
 export type LayoutMode = "1-col" | "2-col";
 export type PreviewMode = "desktop" | "tablet" | "mobile";
 export type PaddingMode = "all" | "individual";
-export type BuilderStyling = BuilderConfig["styling"];
+export type StylingValues = {
+  layout: LayoutMode;
+  formPaddingMode: PaddingMode;
+  formPadding: number;
+  formPaddingTop: number;
+  formPaddingRight: number;
+  formPaddingBottom: number;
+  formPaddingLeft: number;
+  inputPaddingMode: PaddingMode;
+  inputPadding: number;
+  inputPaddingTop: number;
+  inputPaddingRight: number;
+  inputPaddingBottom: number;
+  inputPaddingLeft: number;
+  buttonPaddingMode: PaddingMode;
+  buttonPadding: number;
+  buttonPaddingTop: number;
+  buttonPaddingRight: number;
+  buttonPaddingBottom: number;
+  buttonPaddingLeft: number;
+  sectionGap: number;
+  fieldGap: number;
+  primaryColor: string;
+  surfaceColor: string;
+  borderColor: string;
+  textColor: string;
+  labelColor: string;
+  placeholderColor: string;
+  sectionSurfaceColor: string;
+  sectionBorderColor: string;
+  sectionTitleColor: string;
+  sectionBodyColor: string;
+  sectionBorderWidth: number;
+  fieldSurfaceColor: string;
+  fieldBorderColor: string;
+  fieldTextColor: string;
+  fieldLabelColor: string;
+  fieldHelperColor: string;
+  fieldPlaceholderColor: string;
+  fieldFocusColor: string;
+  fieldBorderWidth: number;
+  fieldFocusWidth: number;
+  buttonBorderColor: string;
+  buttonTextColor: string;
+  titleSize: number;
+  titleWeight: number;
+  bodySize: number;
+  bodyWeight: number;
+  labelSize: number;
+  labelWeight: number;
+  helperSize: number;
+  helperWeight: number;
+  inputTextSize: number;
+  inputTextWeight: number;
+  buttonTextSize: number;
+  buttonTextWeight: number;
+  radius: number;
+  sectionRadius: number;
+  fieldRadius: number;
+  buttonRadius: number;
+  buttonBorderWidth: number;
+  buttonStyle: "solid" | "outline";
+  showHeading: boolean;
+  showSubtext: boolean;
+};
+export type BuilderStyling = StylingValues & {
+  tabletOverrides?: Partial<StylingValues>;
+  mobileOverrides?: Partial<StylingValues>;
+};
+
+function getDefaultPlaceholderForType(type: FieldType) {
+  if (type === "select") {
+    return "Select an option";
+  }
+
+  if (type === "checkbox" || type === "radio") {
+    return undefined;
+  }
+
+  return `Enter ${titleForType(type).toLowerCase()}`;
+}
 
 export type BuilderConfig = {
   fields: Field[];
   buttons: FormActionButton[];
-  styling: {
-    layout: LayoutMode;
-    tabletLayout?: LayoutMode;
-    mobileLayout?: LayoutMode;
-    formPaddingMode: PaddingMode;
-    formPadding: number;
-    formPaddingTop: number;
-    formPaddingRight: number;
-    formPaddingBottom: number;
-    formPaddingLeft: number;
-    inputPaddingMode: PaddingMode;
-    inputPadding: number;
-    inputPaddingTop: number;
-    inputPaddingRight: number;
-    inputPaddingBottom: number;
-    inputPaddingLeft: number;
-    buttonPaddingMode: PaddingMode;
-    buttonPadding: number;
-    buttonPaddingTop: number;
-    buttonPaddingRight: number;
-    buttonPaddingBottom: number;
-    buttonPaddingLeft: number;
-    sectionGap: number;
-    fieldGap: number;
-    primaryColor: string;
-    surfaceColor: string;
-    borderColor: string;
-    textColor: string;
-    labelColor: string;
-    placeholderColor: string;
-    sectionSurfaceColor: string;
-    sectionBorderColor: string;
-    sectionTitleColor: string;
-    sectionBodyColor: string;
-    sectionBorderWidth: number;
-    fieldSurfaceColor: string;
-    fieldBorderColor: string;
-    fieldTextColor: string;
-    fieldLabelColor: string;
-    fieldHelperColor: string;
-    fieldPlaceholderColor: string;
-    fieldFocusColor: string;
-    fieldBorderWidth: number;
-    fieldFocusWidth: number;
-    buttonBorderColor: string;
-    buttonTextColor: string;
-    titleSize: number;
-    titleWeight: number;
-    bodySize: number;
-    bodyWeight: number;
-    labelSize: number;
-    labelWeight: number;
-    helperSize: number;
-    helperWeight: number;
-    inputTextSize: number;
-    inputTextWeight: number;
-    buttonTextSize: number;
-    buttonTextWeight: number;
-    radius: number;
-    sectionRadius: number;
-    fieldRadius: number;
-    buttonRadius: number;
-    buttonBorderWidth: number;
-    buttonStyle: "solid" | "outline";
-  };
+  styling: BuilderStyling;
   integrations: {
     otpEnabled: boolean;
     sheetsEnabled: boolean;
@@ -128,6 +144,7 @@ const INITIAL_FIELDS: Field[] = [
     id: "field-program",
     type: "select",
     label: "Program",
+    placeholder: getDefaultPlaceholderForType("select"),
     required: true,
     isLabelVisible: true,
     isRequiredVisible: true,
@@ -217,6 +234,8 @@ export const DEFAULT_CONFIG: BuilderConfig = {
     buttonRadius: 10,
     buttonBorderWidth: 1,
     buttonStyle: "solid",
+    showHeading: false,
+    showSubtext: false,
   },
   integrations: {
     otpEnabled: true,
@@ -232,6 +251,10 @@ export const DEFAULT_CONFIG: BuilderConfig = {
 
 export function normalizeBuilderConfig(config: BuilderConfig): BuilderConfig {
   const rawStyling = config.styling ?? {};
+  const legacyFormSettings = (config.formSettings ?? {}) as BuilderConfig["formSettings"] & {
+    showHeading?: boolean;
+    showSubtext?: boolean;
+  };
   const legacyStyling = rawStyling as typeof rawStyling & {
     controlPaddingX?: number;
     controlPaddingY?: number;
@@ -243,11 +266,15 @@ export function normalizeBuilderConfig(config: BuilderConfig): BuilderConfig {
     primaryColor?: string;
     radius?: number;
     buttonBorderColor?: string;
+    tabletLayout?: LayoutMode;
+    mobileLayout?: LayoutMode;
   };
   const nextStyling = {
     ...DEFAULT_CONFIG.styling,
     ...rawStyling,
   };
+  delete nextStyling.tabletOverrides;
+  delete nextStyling.mobileOverrides;
   const hasExplicitInputPadding =
     "inputPaddingMode" in rawStyling ||
     "inputPadding" in rawStyling ||
@@ -349,12 +376,43 @@ export function normalizeBuilderConfig(config: BuilderConfig): BuilderConfig {
     nextStyling.buttonPaddingLeft = inputPadding.left;
   }
 
+  nextStyling.showHeading =
+    typeof rawStyling.showHeading === "boolean"
+      ? rawStyling.showHeading
+      : legacyFormSettings.showHeading ?? DEFAULT_CONFIG.styling.showHeading;
+  nextStyling.showSubtext =
+    typeof rawStyling.showSubtext === "boolean"
+      ? rawStyling.showSubtext
+      : legacyFormSettings.showSubtext ?? DEFAULT_CONFIG.styling.showSubtext;
+
+  const normalizeOverride = (override: Partial<BuilderStyling> | undefined, fallbackLayout?: LayoutMode) => {
+    if (!override && fallbackLayout == null) {
+      return undefined;
+    }
+
+    return {
+      ...(override ?? {}),
+      ...(fallbackLayout ? { layout: fallbackLayout } : {}),
+    } satisfies Partial<StylingValues>;
+  };
+
+  const tabletOverrides = normalizeOverride(rawStyling.tabletOverrides, legacyStyling.tabletLayout);
+  const mobileOverrides = normalizeOverride(rawStyling.mobileOverrides, legacyStyling.mobileLayout);
+
   return {
     ...DEFAULT_CONFIG,
     ...config,
-    fields: config.fields ?? DEFAULT_CONFIG.fields,
+    fields: (config.fields ?? DEFAULT_CONFIG.fields).map((field) =>
+      field.type === "select" && field.placeholder == null
+        ? { ...field, placeholder: getDefaultPlaceholderForType("select") }
+        : field,
+    ),
     buttons: config.buttons ?? DEFAULT_CONFIG.buttons,
-    styling: nextStyling,
+    styling: {
+      ...nextStyling,
+      ...(tabletOverrides ? { tabletOverrides } : {}),
+      ...(mobileOverrides ? { mobileOverrides } : {}),
+    },
     integrations: {
       ...DEFAULT_CONFIG.integrations,
       ...config.integrations,
@@ -363,6 +421,58 @@ export function normalizeBuilderConfig(config: BuilderConfig): BuilderConfig {
       ...DEFAULT_CONFIG.formSettings,
       ...config.formSettings,
     },
+  };
+}
+
+export function resolveStylingForPreview(
+  styling: BuilderStyling,
+  previewMode: PreviewMode,
+): StylingValues {
+  if (previewMode === "tablet") {
+    return {
+      ...styling,
+      ...(styling.tabletOverrides ?? {}),
+    };
+  }
+
+  if (previewMode === "mobile") {
+    return {
+      ...styling,
+      ...(styling.mobileOverrides ?? {}),
+    };
+  }
+
+  return styling;
+}
+
+export function updateStylingForPreview(
+  styling: BuilderStyling,
+  previewMode: PreviewMode,
+  patch: Partial<StylingValues>,
+): BuilderStyling {
+  if (previewMode === "tablet") {
+    return {
+      ...styling,
+      tabletOverrides: {
+        ...(styling.tabletOverrides ?? {}),
+        ...patch,
+      },
+    };
+  }
+
+  if (previewMode === "mobile") {
+    return {
+      ...styling,
+      mobileOverrides: {
+        ...(styling.mobileOverrides ?? {}),
+        ...patch,
+      },
+    };
+  }
+
+  return {
+    ...styling,
+    ...patch,
   };
 }
 
@@ -467,6 +577,7 @@ export function defaultField(type: FieldType, index: number): Field {
       id: baseId,
       type,
       label: "Select Option",
+      placeholder: getDefaultPlaceholderForType(type),
       required: false,
       isLabelVisible: true,
       isRequiredVisible: true,
@@ -496,13 +607,14 @@ export function defaultField(type: FieldType, index: number): Field {
     return {
       id: baseId,
       type,
-      label: "I agree to the terms",
-      required: true,
+      label: "Choose Options",
+      required: false,
       isLabelVisible: true,
       isRequiredVisible: true,
       isHelperTextVisible: true,
       width: "full",
-      validationMessage: "Please accept before continuing.",
+      options: ["Option 1", "Option 2", "Option 3"],
+      validationMessage: "Please select at least one option.",
     };
   }
 
@@ -510,7 +622,7 @@ export function defaultField(type: FieldType, index: number): Field {
     id: baseId,
     type,
     label: titleForType(type),
-    placeholder: `Enter ${titleForType(type).toLowerCase()}`,
+    placeholder: getDefaultPlaceholderForType(type),
     required: false,
     isLabelVisible: true,
     isRequiredVisible: true,
@@ -570,15 +682,7 @@ export function getLayoutForPreview(
   styling: BuilderConfig["styling"],
   previewMode: PreviewMode,
 ) {
-  if (previewMode === "tablet") {
-    return styling.tabletLayout ?? styling.layout;
-  }
-
-  if (previewMode === "mobile") {
-    return styling.mobileLayout ?? styling.layout;
-  }
-
-  return styling.layout;
+  return resolveStylingForPreview(styling, previewMode).layout;
 }
 
 export function getButtonWidthForPreview(

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { ButtonTypeIcon, FieldTypeIcon } from "../builder-item-icon";
 import type {
   FormActionButton,
@@ -26,6 +28,52 @@ import {
 import { ItemLayoutCard } from "./item-layout-card";
 import type { RightPanelTab } from "./types";
 
+function FieldOptionsTextarea({
+  field,
+  onFieldUpdate,
+}: {
+  field: Field;
+  onFieldUpdate: <K extends keyof Field>(id: string, key: K, value: Field[K]) => void;
+}) {
+  const [draftValue, setDraftValue] = useState((field.options ?? []).join("\n"));
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setDraftValue((field.options ?? []).join("\n"));
+    }
+  }, [field.id, field.options, isEditing]);
+
+  const commitOptions = (value: string) => {
+    onFieldUpdate(
+      field.id,
+      "options",
+      value
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    );
+  };
+
+  return (
+    <TextareaRow
+      label="Options"
+      rows={4}
+      value={draftValue}
+      onFocus={() => setIsEditing(true)}
+      onChange={(event) => {
+        const nextValue = event.target.value;
+        setDraftValue(nextValue);
+        commitOptions(nextValue);
+      }}
+      onBlur={(event) => {
+        setIsEditing(false);
+        commitOptions(event.target.value);
+      }}
+    />
+  );
+}
+
 function FieldConfigPanel({
   field,
   previewMode,
@@ -40,6 +88,10 @@ function FieldConfigPanel({
   onFieldWidthSet: (id: string, width: WidthOption) => void;
 }) {
   const currentWidth = getFieldWidthForPreview(field, previewMode);
+  const handleRequiredChange = (checked: boolean) => {
+    onFieldUpdate(field.id, "required", checked);
+    onFieldUpdate(field.id, "isRequiredVisible", checked);
+  };
 
   return (
     <InspectorShell
@@ -55,6 +107,17 @@ function FieldConfigPanel({
       badge={getFieldTypeLabel(field.type)}
     >
       <InspectorCard title="Basic">
+        <SelectRow
+          label="Type"
+          value={field.type}
+          onChange={(event) => onFieldTypeChange(field.id, event.target.value as FieldType)}
+        >
+          {FIELD_TYPE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </SelectRow>
         <TextInputRow
           label="Label"
           value={field.label}
@@ -67,35 +130,34 @@ function FieldConfigPanel({
             onChange={(event) => onFieldUpdate(field.id, "placeholder", event.target.value)}
           />
         ) : null}
-        <SelectRow
-          label="Type"
-          value={field.type}
-          onChange={(event) => onFieldTypeChange(field.id, event.target.value as FieldType)}
-        >
-          {FIELD_TYPE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </SelectRow>
+        <TextInputRow
+          label="Error message"
+          value={field.validationMessage ?? ""}
+          onChange={(event) => onFieldUpdate(field.id, "validationMessage", event.target.value)}
+        />
+        {field.type === "select" || field.type === "radio" || field.type === "checkbox" ? (
+          <FieldOptionsTextarea field={field} onFieldUpdate={onFieldUpdate} />
+        ) : null}
       </InspectorCard>
 
       <InspectorCard title="Visibility">
         <ToggleRow
           label="Required"
           checked={field.required}
-          onChange={(checked) => onFieldUpdate(field.id, "required", checked)}
+          onChange={handleRequiredChange}
         />
         <ToggleRow
           label="Show label"
           checked={field.isLabelVisible ?? true}
           onChange={(checked) => onFieldUpdate(field.id, "isLabelVisible", checked)}
         />
-        <ToggleRow
-          label="Show required *"
-          checked={field.isRequiredVisible ?? true}
-          onChange={(checked) => onFieldUpdate(field.id, "isRequiredVisible", checked)}
-        />
+        {field.required ? (
+          <ToggleRow
+            label="Show required *"
+            checked={field.isRequiredVisible ?? true}
+            onChange={(checked) => onFieldUpdate(field.id, "isRequiredVisible", checked)}
+          />
+        ) : null}
         <ToggleRow
           label="Show helper text"
           checked={field.isHelperTextVisible ?? true}
@@ -109,30 +171,6 @@ function FieldConfigPanel({
         onWidthChange={(value) => onFieldWidthSet(field.id, value)}
       />
 
-      <InspectorCard title="Validation">
-        <TextInputRow
-          label="Error message"
-          value={field.validationMessage ?? ""}
-          onChange={(event) => onFieldUpdate(field.id, "validationMessage", event.target.value)}
-        />
-        {field.type === "select" || field.type === "radio" ? (
-          <TextareaRow
-            label="Options"
-            rows={4}
-            value={(field.options ?? []).join("\n")}
-            onChange={(event) =>
-              onFieldUpdate(
-                field.id,
-                "options",
-                event.target.value
-                  .split("\n")
-                  .map((item) => item.trim())
-                  .filter(Boolean),
-              )
-            }
-          />
-        ) : null}
-      </InspectorCard>
     </InspectorShell>
   );
 }

@@ -19,20 +19,20 @@ import {
   fieldWidthClass,
   getLayoutForPreview,
   normalizeBuilderConfig,
+  resolveStylingForPreview,
   type BuilderConfig,
   type PreviewMode,
 } from "./lib/builder-config";
 import { getDefaultButtonIcons } from "./lib/button-icons";
 import { generateAppsScript, generateFramerComponent } from "./lib/code-generators";
 
-type TopbarTab = "builder" | "code" | "settings";
+type TopbarTab = "builder" | "code" | "settings" | "advanced";
 type RightPanelTab =
   | "component"
   | "sheets"
   | "field"
   | "button"
   | "style"
-  | "form"
   | "integrations";
 
 function cloneDefaultConfig(): BuilderConfig {
@@ -69,6 +69,7 @@ export default function Home() {
     resolvedConfig.buttons.find((button) => button.id === selectedButtonId) ??
     resolvedConfig.buttons[0];
   const activeLayout = getLayoutForPreview(resolvedConfig.styling, previewMode);
+  const activeStyling = resolveStylingForPreview(resolvedConfig.styling, previewMode);
 
   const generatedFramerCode = useMemo(
     () => generateFramerComponent(resolvedConfig),
@@ -315,7 +316,7 @@ export default function Home() {
   const handleTopbarTabChange = (tab: TopbarTab) => {
     setTopbarTab(tab);
 
-    if (tab === "settings") {
+    if (tab === "settings" || tab === "advanced") {
       setRightPanelTab("style");
       return;
     }
@@ -372,7 +373,7 @@ export default function Home() {
           buttons={resolvedConfig.buttons}
           previewMode={previewMode}
           layout={activeLayout}
-          styling={resolvedConfig.styling}
+          styling={activeStyling}
           formSettings={resolvedConfig.formSettings}
           submitState={previewSubmitState}
           onPreviewModeChange={setPreviewMode}

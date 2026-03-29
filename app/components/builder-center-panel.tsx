@@ -10,7 +10,7 @@ import type {
   FormButtonStyle,
 } from "./form/button/types";
 import type { Field, WidthOption } from "./form/types";
-import type { BuilderConfig, LayoutMode, PreviewMode } from "../lib/builder-config";
+import type { BuilderConfig, LayoutMode, PreviewMode, StylingValues } from "../lib/builder-config";
 import {
   getButtonPaddingValues,
   getButtonWidthForPreview,
@@ -24,7 +24,7 @@ type BuilderCenterPanelProps = {
   buttons: FormActionButton[];
   previewMode: PreviewMode;
   layout: LayoutMode;
-  styling: BuilderConfig["styling"] & { buttonStyle: FormButtonStyle };
+  styling: StylingValues & { buttonStyle: FormButtonStyle };
   formSettings: {
     pageName: string;
     successMessage: string;
@@ -55,6 +55,7 @@ export function BuilderCenterPanel({
 }: BuilderCenterPanelProps) {
   const inputPadding = getInputPaddingValues(styling);
   const buttonPadding = getButtonPaddingValues(styling);
+  const shouldShowHeader = styling.showHeading || styling.showSubtext;
 
   return (
     <section className="builder-app-center-panel">
@@ -121,12 +122,18 @@ export function BuilderCenterPanel({
             } as CSSProperties
           }
         >
-          <div className="builder-app-form-shell-header">
-            <div className="builder-app-form-shell-title">{formSettings.pageName}</div>
-            <div className="builder-app-form-shell-subtitle">
-              {formSettings.successMessage}
+          {shouldShowHeader ? (
+            <div className="builder-app-form-shell-header">
+              {styling.showHeading ? (
+                <div className="builder-app-form-shell-title">{formSettings.pageName}</div>
+              ) : null}
+              {styling.showSubtext ? (
+                <div className="builder-app-form-shell-subtitle">
+                  {formSettings.successMessage}
+                </div>
+              ) : null}
             </div>
-          </div>
+          ) : null}
 
           <div className={`builder-preview-form ${layout === "2-col" ? "is-two-col" : ""}`}>
             {fields.map((field) => {

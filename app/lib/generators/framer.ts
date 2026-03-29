@@ -1,4 +1,8 @@
-import type { BuilderConfig } from "../builder-config";
+import {
+  resolveStylingForPreview,
+  type BuilderConfig,
+  type StylingValues,
+} from "../builder-config";
 
 function toPascalCase(value: string) {
   return value
@@ -11,11 +15,40 @@ function toPascalCase(value: string) {
 }
 
 export function generateFramerComponent(config: BuilderConfig) {
+  const desktopStyling = resolveStylingForPreview(config.styling, "desktop");
+  const tabletStyling = resolveStylingForPreview(config.styling, "tablet");
+  const mobileStyling = resolveStylingForPreview(config.styling, "mobile");
+  const getModeOverride = (modeStyling: StylingValues) =>
+    Object.fromEntries(
+      Object.entries(modeStyling).filter(
+        ([key, value]) => desktopStyling[key as keyof StylingValues] !== value,
+      ),
+    );
+  const stylingOverrides = {
+    tablet: getModeOverride(tabletStyling),
+    mobile: getModeOverride(mobileStyling),
+  };
   const componentName = `${toPascalCase(config.formSettings.pageName) || "Generated"}Form`;
   const fieldsDefinition = JSON.stringify(config.fields, null, 2);
   const buttonsDefinition = JSON.stringify(config.buttons, null, 2);
   const phoneFieldId = config.fields.find((field) => field.type === "phone")?.id ?? "";
   const emailFieldId = config.fields.find((field) => field.type === "email")?.id ?? "";
+  const headerMarkup =
+    desktopStyling.showHeading || desktopStyling.showSubtext
+      ? `
+      <div style={{ display: "grid", gap: 4 }}>
+        {resolvedProps.showHeading ? (
+        <div style={{ color: resolvedProps.sectionTitleColor, fontSize: resolvedProps.titleSize, fontWeight: resolvedProps.titleWeight }}>
+          ${JSON.stringify(config.formSettings.pageName)}
+        </div>
+        ) : null}
+        {resolvedProps.showSubtext ? (
+        <div style={{ color: resolvedProps.sectionBodyColor, fontSize: resolvedProps.bodySize, fontWeight: resolvedProps.bodyWeight }}>
+          ${JSON.stringify(config.formSettings.successMessage)}
+        </div>
+        ) : null}
+      </div>`
+      : "";
   const integrationControls = [
     config.integrations.otpEnabled &&
       `otpWebhookUrl: { type: ControlType.String, title: "OTP URL", defaultValue: "" }`,
@@ -440,7 +473,7 @@ function FieldShell({ label, required, isLabelVisible, isRequiredVisible, messag
       <div style={{ position: "relative" }}>
         <div aria-hidden="true" style={getInputSurfaceStyle(props, { isPlaceholder: !value, hasTrailing: true, isFocused })}>
           <span style={{ display: "block", width: "100%", fontSize: props.inputTextSize, fontWeight: props.inputTextWeight, lineHeight: 1.2, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-            {value || field.placeholder || "Select an option"}
+            {value || (field.placeholder ?? "Select an option")}
           </span>
           <span style={{ position: "absolute", top: "50%", right: getInputPadding(props).right, display: "inline-flex", alignItems: "center", justifyContent: "center", color: props.fieldLabelColor, transform: "translateY(-50%)" }}>
             <ChevronIcon />
@@ -453,7 +486,7 @@ function FieldShell({ label, required, isLabelVisible, isRequiredVisible, messag
           onBlur={onBlur}
           style={getNativeInputStyle(props, { isSelect: true })}
         >
-          <option value="">{field.placeholder || "Select an option"}</option>
+          <option value="">{field.placeholder ?? "Select an option"}</option>
           {(field.options || []).map((option) => (
             <option key={option} value={option}>{option}</option>
           ))}
@@ -490,15 +523,39 @@ function FieldShell({ label, required, isLabelVisible, isRequiredVisible, messag
   )
 }`,
     `function CheckboxField({ field, value, onChange, props }) {
+  const selectedValues = Array.isArray(value) ? value : []
+  const options = field.options && field.options.length > 0 ? field.options : [field.label]
+
   return (
-    <label style={getChoiceStyle(props)}>
-      <input
-        type="checkbox"
-        checked={Boolean(value)}
-        onChange={(event) => onChange(field.id, event.target.checked)}
-      />
-      <span>{field.isLabelVisible === false ? "" : field.label + (field.required && field.isRequiredVisible !== false ? " *" : "")}</span>
-    </label>
+    <FieldShell
+      label={field.label}
+      required={field.required}
+      isLabelVisible={field.isLabelVisible}
+      isRequiredVisible={field.isRequiredVisible}
+      message={field.validationMessage}
+      isHelperTextVisible={field.isHelperTextVisible}
+      props={props}
+    >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        {options.map((option) => (
+          <label key={option} style={getChoiceStyle(props)}>
+            <input
+              type="checkbox"
+              checked={selectedValues.includes(option)}
+              onChange={(event) =>
+                onChange(
+                  field.id,
+                  event.target.checked
+                    ? [...selectedValues, option]
+                    : selectedValues.filter((value) => value !== option)
+                )
+              }
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+    </FieldShell>
   )
 }`,
     `function renderField(field, value, onChange, isFocused, onFocus, onBlur, props) {
@@ -529,10 +586,11 @@ import { addPropertyControls, ControlType } from "framer";
 const fields = ${fieldsDefinition};
 const buttons = ${buttonsDefinition};
 const layout = {
-  desktop: "${config.styling.layout}",
-  tablet: "${config.styling.tabletLayout ?? config.styling.layout}",
-  mobile: "${config.styling.mobileLayout ?? config.styling.layout}",
+  desktop: "${desktopStyling.layout}",
+  tablet: "${tabletStyling.layout}",
+  mobile: "${mobileStyling.layout}",
 };
+const styleOverrides = ${JSON.stringify(stylingOverrides, null, 2)};
 
 ${generatedComponents}
 
@@ -618,7 +676,7 @@ function getLayoutForViewport(props, viewportWidth) {
 
 export default function ${componentName}(props) {
   const [values, setValues] = React.useState(() =>
-    Object.fromEntries(fields.map((field) => [field.id, field.type === "checkbox" ? false : ""]))
+    Object.fromEntries(fields.map((field) => [field.id, field.type === "checkbox" ? [] : ""]))
   )
   const [submitState, setSubmitState] = React.useState("idle")
   const [focusedFieldId, setFocusedFieldId] = React.useState(null)
@@ -663,31 +721,32 @@ ${redirectSubmission}
 
   const activeMode = getActiveMode(props, viewportWidth)
   const activeLayout = getLayoutForViewport(props, viewportWidth)
+  const resolvedProps = {
+    ...props,
+    ...(activeMode === "tablet"
+      ? styleOverrides.tablet
+      : activeMode === "mobile"
+        ? styleOverrides.mobile
+        : {}),
+  }
 
   return (
     <form
       onSubmit={handleSubmit}
       style={{
         display: "grid",
-        gap: props.sectionGap,
-        padding: getFormPadding(props),
-        borderRadius: props.sectionRadius,
-        background: props.sectionSurfaceColor,
-        border: \`\${props.sectionBorderWidth}px solid \${props.sectionBorderColor}\`,
+        gap: resolvedProps.sectionGap,
+        padding: getFormPadding(resolvedProps),
+        borderRadius: resolvedProps.sectionRadius,
+        background: resolvedProps.sectionSurfaceColor,
+        border: \`\${resolvedProps.sectionBorderWidth}px solid \${resolvedProps.sectionBorderColor}\`,
       }}
     >
-      <div style={{ display: "grid", gap: 4 }}>
-        <div style={{ color: props.sectionTitleColor, fontSize: props.titleSize, fontWeight: props.titleWeight }}>
-          ${JSON.stringify(config.formSettings.pageName)}
-        </div>
-        <div style={{ color: props.sectionBodyColor, fontSize: props.bodySize, fontWeight: props.bodyWeight }}>
-          ${JSON.stringify(config.formSettings.successMessage)}
-        </div>
-      </div>
+      ${headerMarkup}
       <div
         style={{
           display: "grid",
-          gap: props.fieldGap,
+          gap: resolvedProps.fieldGap,
           gridTemplateColumns: activeLayout === "2-col" ? "repeat(6, minmax(0, 1fr))" : "1fr",
         }}
       >
@@ -705,7 +764,7 @@ ${redirectSubmission}
               focusedFieldId === field.id,
               () => setFocusedFieldId(field.id),
               () => setFocusedFieldId((current) => (current === field.id ? null : current)),
-              props
+              resolvedProps
             )}
           </div>
         ))}
@@ -715,7 +774,7 @@ ${redirectSubmission}
         <div
           style={{
             display: "grid",
-            gap: props.fieldGap,
+            gap: resolvedProps.fieldGap,
             gridTemplateColumns: activeLayout === "2-col" ? "repeat(6, minmax(0, 1fr))" : "1fr",
           }}
         >
@@ -744,20 +803,20 @@ ${redirectSubmission}
               >
                 {button.type === "submit" ? (
                   <button type="submit" {...sharedProps}>
-                    <span style={getButtonSurfaceStyle(props)}>
-                      {getButtonContent(button, label, props)}
+                    <span style={getButtonSurfaceStyle(resolvedProps)}>
+                      {getButtonContent(button, label, resolvedProps)}
                     </span>
                   </button>
                 ) : button.type === "otp" ? (
                   <button type="button" onClick={handleOtp} style={getButtonRootStyle()}>
-                    <span style={getButtonSurfaceStyle(props)}>
-                      {getButtonContent(button, label, props)}
+                    <span style={getButtonSurfaceStyle(resolvedProps)}>
+                      {getButtonContent(button, label, resolvedProps)}
                     </span>
                   </button>
                 ) : (
                   <button type="button" onClick={handleBack} style={getButtonRootStyle()}>
-                    <span style={getButtonSurfaceStyle(props)}>
-                      {getButtonContent(button, label, props)}
+                    <span style={getButtonSurfaceStyle(resolvedProps)}>
+                      {getButtonContent(button, label, resolvedProps)}
                     </span>
                   </button>
                 )}
@@ -779,82 +838,82 @@ ${integrationControls ? `addPropertyControls(${componentName}, {\n  ${integratio
     displaySegmentedControl: true,
     defaultValue: "desktop",
   },
-  primaryColor: { type: ControlType.Color, title: "Button Color", defaultValue: "${config.styling.primaryColor}" },
-  buttonBorderColor: { type: ControlType.Color, title: "Button Border", defaultValue: "${config.styling.buttonBorderColor}" },
-  buttonTextColor: { type: ControlType.Color, title: "Button Text", defaultValue: "${config.styling.buttonTextColor}" },
-  sectionSurfaceColor: { type: ControlType.Color, title: "Section Surface", defaultValue: "${config.styling.sectionSurfaceColor}" },
-  sectionBorderColor: { type: ControlType.Color, title: "Section Border", defaultValue: "${config.styling.sectionBorderColor}" },
-  sectionBorderWidth: { type: ControlType.Number, title: "Section Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${config.styling.sectionBorderWidth} },
-  sectionTitleColor: { type: ControlType.Color, title: "Section Title", defaultValue: "${config.styling.sectionTitleColor}" },
-  sectionBodyColor: { type: ControlType.Color, title: "Section Body", defaultValue: "${config.styling.sectionBodyColor}" },
-  fieldSurfaceColor: { type: ControlType.Color, title: "Field Surface", defaultValue: "${config.styling.fieldSurfaceColor}" },
-  fieldBorderColor: { type: ControlType.Color, title: "Field Border", defaultValue: "${config.styling.fieldBorderColor}" },
-  fieldBorderWidth: { type: ControlType.Number, title: "Field Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${config.styling.fieldBorderWidth} },
-  fieldTextColor: { type: ControlType.Color, title: "Field Text", defaultValue: "${config.styling.fieldTextColor}" },
-  fieldLabelColor: { type: ControlType.Color, title: "Field Label", defaultValue: "${config.styling.fieldLabelColor}" },
-  fieldHelperColor: { type: ControlType.Color, title: "Field Helper", defaultValue: "${config.styling.fieldHelperColor}" },
-  fieldPlaceholderColor: { type: ControlType.Color, title: "Field Placeholder", defaultValue: "${config.styling.fieldPlaceholderColor}" },
-  fieldFocusColor: { type: ControlType.Color, title: "Field Focus", defaultValue: "${config.styling.fieldFocusColor}" },
-  fieldFocusWidth: { type: ControlType.Number, title: "Field Focus Width", min: 0, max: 12, step: 0.1, defaultValue: ${config.styling.fieldFocusWidth} },
+  primaryColor: { type: ControlType.Color, title: "Button Color", defaultValue: "${desktopStyling.primaryColor}" },
+  buttonBorderColor: { type: ControlType.Color, title: "Button Border", defaultValue: "${desktopStyling.buttonBorderColor}" },
+  buttonTextColor: { type: ControlType.Color, title: "Button Text", defaultValue: "${desktopStyling.buttonTextColor}" },
+  sectionSurfaceColor: { type: ControlType.Color, title: "Section Surface", defaultValue: "${desktopStyling.sectionSurfaceColor}" },
+  sectionBorderColor: { type: ControlType.Color, title: "Section Border", defaultValue: "${desktopStyling.sectionBorderColor}" },
+  sectionBorderWidth: { type: ControlType.Number, title: "Section Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${desktopStyling.sectionBorderWidth} },
+  sectionTitleColor: { type: ControlType.Color, title: "Section Title", defaultValue: "${desktopStyling.sectionTitleColor}" },
+  sectionBodyColor: { type: ControlType.Color, title: "Section Body", defaultValue: "${desktopStyling.sectionBodyColor}" },
+  fieldSurfaceColor: { type: ControlType.Color, title: "Field Surface", defaultValue: "${desktopStyling.fieldSurfaceColor}" },
+  fieldBorderColor: { type: ControlType.Color, title: "Field Border", defaultValue: "${desktopStyling.fieldBorderColor}" },
+  fieldBorderWidth: { type: ControlType.Number, title: "Field Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${desktopStyling.fieldBorderWidth} },
+  fieldTextColor: { type: ControlType.Color, title: "Field Text", defaultValue: "${desktopStyling.fieldTextColor}" },
+  fieldLabelColor: { type: ControlType.Color, title: "Field Label", defaultValue: "${desktopStyling.fieldLabelColor}" },
+  fieldHelperColor: { type: ControlType.Color, title: "Field Helper", defaultValue: "${desktopStyling.fieldHelperColor}" },
+  fieldPlaceholderColor: { type: ControlType.Color, title: "Field Placeholder", defaultValue: "${desktopStyling.fieldPlaceholderColor}" },
+  fieldFocusColor: { type: ControlType.Color, title: "Field Focus", defaultValue: "${desktopStyling.fieldFocusColor}" },
+  fieldFocusWidth: { type: ControlType.Number, title: "Field Focus Width", min: 0, max: 12, step: 0.1, defaultValue: ${desktopStyling.fieldFocusWidth} },
   formPaddingMode: {
     type: ControlType.Enum,
     title: "Padding Mode",
     options: ["all", "individual"],
     optionTitles: ["All", "4 sides"],
-    defaultValue: "${config.styling.formPaddingMode}",
+    defaultValue: "${desktopStyling.formPaddingMode}",
   },
-  formPadding: { type: ControlType.Number, title: "Form Padding", min: 0, max: 64, defaultValue: ${config.styling.formPadding} },
-  formPaddingTop: { type: ControlType.Number, title: "Pad Top", min: 0, max: 64, defaultValue: ${config.styling.formPaddingTop} },
-  formPaddingRight: { type: ControlType.Number, title: "Pad Right", min: 0, max: 64, defaultValue: ${config.styling.formPaddingRight} },
-  formPaddingBottom: { type: ControlType.Number, title: "Pad Bottom", min: 0, max: 64, defaultValue: ${config.styling.formPaddingBottom} },
-  formPaddingLeft: { type: ControlType.Number, title: "Pad Left", min: 0, max: 64, defaultValue: ${config.styling.formPaddingLeft} },
+  formPadding: { type: ControlType.Number, title: "Form Padding", min: 0, max: 64, defaultValue: ${desktopStyling.formPadding} },
+  formPaddingTop: { type: ControlType.Number, title: "Pad Top", min: 0, max: 64, defaultValue: ${desktopStyling.formPaddingTop} },
+  formPaddingRight: { type: ControlType.Number, title: "Pad Right", min: 0, max: 64, defaultValue: ${desktopStyling.formPaddingRight} },
+  formPaddingBottom: { type: ControlType.Number, title: "Pad Bottom", min: 0, max: 64, defaultValue: ${desktopStyling.formPaddingBottom} },
+  formPaddingLeft: { type: ControlType.Number, title: "Pad Left", min: 0, max: 64, defaultValue: ${desktopStyling.formPaddingLeft} },
   inputPaddingMode: {
     type: ControlType.Enum,
     title: "Input Pad Mode",
     options: ["all", "individual"],
     optionTitles: ["All", "4 sides"],
-    defaultValue: "${config.styling.inputPaddingMode}",
+    defaultValue: "${desktopStyling.inputPaddingMode}",
   },
-  inputPadding: { type: ControlType.Number, title: "Input Padding", min: 0, max: 32, defaultValue: ${config.styling.inputPadding} },
-  inputPaddingTop: { type: ControlType.Number, title: "Input Top", min: 0, max: 32, defaultValue: ${config.styling.inputPaddingTop} },
-  inputPaddingRight: { type: ControlType.Number, title: "Input Right", min: 0, max: 32, defaultValue: ${config.styling.inputPaddingRight} },
-  inputPaddingBottom: { type: ControlType.Number, title: "Input Bottom", min: 0, max: 32, defaultValue: ${config.styling.inputPaddingBottom} },
-  inputPaddingLeft: { type: ControlType.Number, title: "Input Left", min: 0, max: 32, defaultValue: ${config.styling.inputPaddingLeft} },
+  inputPadding: { type: ControlType.Number, title: "Input Padding", min: 0, max: 32, defaultValue: ${desktopStyling.inputPadding} },
+  inputPaddingTop: { type: ControlType.Number, title: "Input Top", min: 0, max: 32, defaultValue: ${desktopStyling.inputPaddingTop} },
+  inputPaddingRight: { type: ControlType.Number, title: "Input Right", min: 0, max: 32, defaultValue: ${desktopStyling.inputPaddingRight} },
+  inputPaddingBottom: { type: ControlType.Number, title: "Input Bottom", min: 0, max: 32, defaultValue: ${desktopStyling.inputPaddingBottom} },
+  inputPaddingLeft: { type: ControlType.Number, title: "Input Left", min: 0, max: 32, defaultValue: ${desktopStyling.inputPaddingLeft} },
   buttonPaddingMode: {
     type: ControlType.Enum,
     title: "Button Pad Mode",
     options: ["all", "individual"],
     optionTitles: ["All", "4 sides"],
-    defaultValue: "${config.styling.buttonPaddingMode}",
+    defaultValue: "${desktopStyling.buttonPaddingMode}",
   },
-  buttonPadding: { type: ControlType.Number, title: "Button Padding", min: 0, max: 40, defaultValue: ${config.styling.buttonPadding} },
-  buttonPaddingTop: { type: ControlType.Number, title: "Button Top", min: 0, max: 40, defaultValue: ${config.styling.buttonPaddingTop} },
-  buttonPaddingRight: { type: ControlType.Number, title: "Button Right", min: 0, max: 40, defaultValue: ${config.styling.buttonPaddingRight} },
-  buttonPaddingBottom: { type: ControlType.Number, title: "Button Bottom", min: 0, max: 40, defaultValue: ${config.styling.buttonPaddingBottom} },
-  buttonPaddingLeft: { type: ControlType.Number, title: "Button Left", min: 0, max: 40, defaultValue: ${config.styling.buttonPaddingLeft} },
-  sectionGap: { type: ControlType.Number, title: "Section Gap", min: 0, max: 48, defaultValue: ${config.styling.sectionGap} },
-  fieldGap: { type: ControlType.Number, title: "Field Gap", min: 0, max: 40, defaultValue: ${config.styling.fieldGap} },
-  titleSize: { type: ControlType.Number, title: "Title Size", min: 10, max: 40, defaultValue: ${config.styling.titleSize} },
-  titleWeight: { type: ControlType.Enum, title: "Title Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.titleWeight}" },
-  bodySize: { type: ControlType.Number, title: "Body Size", min: 8, max: 24, defaultValue: ${config.styling.bodySize} },
-  bodyWeight: { type: ControlType.Enum, title: "Body Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.bodyWeight}" },
-  labelSize: { type: ControlType.Number, title: "Label Size", min: 8, max: 20, defaultValue: ${config.styling.labelSize} },
-  labelWeight: { type: ControlType.Enum, title: "Label Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.labelWeight}" },
-  helperSize: { type: ControlType.Number, title: "Helper Size", min: 8, max: 20, defaultValue: ${config.styling.helperSize} },
-  helperWeight: { type: ControlType.Enum, title: "Helper Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.helperWeight}" },
-  inputTextSize: { type: ControlType.Number, title: "Input Size", min: 8, max: 24, defaultValue: ${config.styling.inputTextSize} },
-  inputTextWeight: { type: ControlType.Enum, title: "Input Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.inputTextWeight}" },
-  buttonTextSize: { type: ControlType.Number, title: "Button Size", min: 8, max: 24, defaultValue: ${config.styling.buttonTextSize} },
-  buttonTextWeight: { type: ControlType.Enum, title: "Button Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${config.styling.buttonTextWeight}" },
-  sectionRadius: { type: ControlType.Number, title: "Section Radius", min: 0, max: 48, defaultValue: ${config.styling.sectionRadius} },
-  fieldRadius: { type: ControlType.Number, title: "Field Radius", min: 0, max: 32, defaultValue: ${config.styling.fieldRadius} },
-  buttonRadius: { type: ControlType.Number, title: "Button Radius", min: 0, max: 32, defaultValue: ${config.styling.buttonRadius} },
-  buttonBorderWidth: { type: ControlType.Number, title: "Button Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${config.styling.buttonBorderWidth} },
+  buttonPadding: { type: ControlType.Number, title: "Button Padding", min: 0, max: 40, defaultValue: ${desktopStyling.buttonPadding} },
+  buttonPaddingTop: { type: ControlType.Number, title: "Button Top", min: 0, max: 40, defaultValue: ${desktopStyling.buttonPaddingTop} },
+  buttonPaddingRight: { type: ControlType.Number, title: "Button Right", min: 0, max: 40, defaultValue: ${desktopStyling.buttonPaddingRight} },
+  buttonPaddingBottom: { type: ControlType.Number, title: "Button Bottom", min: 0, max: 40, defaultValue: ${desktopStyling.buttonPaddingBottom} },
+  buttonPaddingLeft: { type: ControlType.Number, title: "Button Left", min: 0, max: 40, defaultValue: ${desktopStyling.buttonPaddingLeft} },
+  sectionGap: { type: ControlType.Number, title: "Section Gap", min: 0, max: 48, defaultValue: ${desktopStyling.sectionGap} },
+  fieldGap: { type: ControlType.Number, title: "Field Gap", min: 0, max: 40, defaultValue: ${desktopStyling.fieldGap} },
+  titleSize: { type: ControlType.Number, title: "Title Size", min: 10, max: 40, defaultValue: ${desktopStyling.titleSize} },
+  titleWeight: { type: ControlType.Enum, title: "Title Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.titleWeight}" },
+  bodySize: { type: ControlType.Number, title: "Body Size", min: 8, max: 24, defaultValue: ${desktopStyling.bodySize} },
+  bodyWeight: { type: ControlType.Enum, title: "Body Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.bodyWeight}" },
+  labelSize: { type: ControlType.Number, title: "Label Size", min: 8, max: 20, defaultValue: ${desktopStyling.labelSize} },
+  labelWeight: { type: ControlType.Enum, title: "Label Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.labelWeight}" },
+  helperSize: { type: ControlType.Number, title: "Helper Size", min: 8, max: 20, defaultValue: ${desktopStyling.helperSize} },
+  helperWeight: { type: ControlType.Enum, title: "Helper Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.helperWeight}" },
+  inputTextSize: { type: ControlType.Number, title: "Input Size", min: 8, max: 24, defaultValue: ${desktopStyling.inputTextSize} },
+  inputTextWeight: { type: ControlType.Enum, title: "Input Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.inputTextWeight}" },
+  buttonTextSize: { type: ControlType.Number, title: "Button Size", min: 8, max: 24, defaultValue: ${desktopStyling.buttonTextSize} },
+  buttonTextWeight: { type: ControlType.Enum, title: "Button Weight", options: ["300", "400", "500", "600", "700"], defaultValue: "${desktopStyling.buttonTextWeight}" },
+  sectionRadius: { type: ControlType.Number, title: "Section Radius", min: 0, max: 48, defaultValue: ${desktopStyling.sectionRadius} },
+  fieldRadius: { type: ControlType.Number, title: "Field Radius", min: 0, max: 32, defaultValue: ${desktopStyling.fieldRadius} },
+  buttonRadius: { type: ControlType.Number, title: "Button Radius", min: 0, max: 32, defaultValue: ${desktopStyling.buttonRadius} },
+  buttonBorderWidth: { type: ControlType.Number, title: "Button Border Width", min: 0, max: 12, step: 0.1, defaultValue: ${desktopStyling.buttonBorderWidth} },
   buttonVariant: {
     type: ControlType.Enum,
     title: "Button Style",
     options: ["solid", "outline"],
-    defaultValue: "${config.styling.buttonStyle}",
+    defaultValue: "${desktopStyling.buttonStyle}",
   },
 });`;
 }
