@@ -4,6 +4,8 @@ import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { landingNavItems } from "./components/landing/nav-items";
+import { LandingTopbar } from "./components/landing/topbar";
 import { CustomActionButton } from "./components/form/button/custom-action-button";
 import {
   CustomSelectControl,
@@ -143,16 +145,6 @@ function BuilderInspectorPreview() {
     </div>
   );
 }
-
-const navItems = [
-  "Product",
-  "Teams",
-  "Resources",
-  "Community",
-  "Support",
-  "Enterprise",
-  "Pricing",
-];
 
 const featureStrip = [
   {
@@ -351,32 +343,13 @@ export default function ProductHomePage() {
   return (
     <main className={styles.page} id="top">
       <section className={styles.hero}>
-        <div className={styles.topbar}>
-          <div className={styles.brand}>
-            <span className={styles.brandGlyph}>
-              <span />
-              <span />
-            </span>
-          </div>
-          <nav className={styles.topbarNav}>
-            {navItems.map((item) => (
-              <a className={styles.topbarNavLink} href="#story" key={item}>
-                {item}
-              </a>
-            ))}
-          </nav>
-          <div className={styles.topbarActions} />
-        </div>
+        <LandingTopbar items={landingNavItems} />
 
         <div className={styles.heroCopy}>
           <h1>
-            <span className={styles.heroLine}>
-              <span className={styles.heroFill}>Build Framer</span>{" "}
-              <span className={styles.heroOutline}>Forms,</span>
-            </span>
-            <span className={styles.heroLine}>
-              <span className={styles.heroFill}>ship production-ready.</span>
-            </span>
+            <span className={styles.heroFill}>Build Framer</span>{" "}
+            <span className={styles.heroOutline}>Forms,</span>{" "}
+            <span className={styles.heroFill}>ship production-ready.</span>
           </h1>
           <p>
             Design, preview, and export polished Framer forms with real validation,
@@ -436,7 +409,7 @@ export default function ProductHomePage() {
         </div>
       </section>
 
-      <section className={styles.learnSection} id="watch">
+      <section className={styles.learnSection} id="how-it-works">
         <div className={styles.learnIntro}>
           <div className={styles.sectionEyebrow}>Watch and learn</div>
           <div className={styles.sectionTitle}>Start in seconds</div>
@@ -450,7 +423,7 @@ export default function ProductHomePage() {
         </div>
       </section>
 
-      <section className={styles.featureStripSection}>
+      <section className={styles.featureStripSection} id="made-for">
         {featureStrip.map((item) => (
           <article className={styles.featureStripCard} key={item.title}>
             <div className={styles.cardEyebrow}>{item.eyebrow}</div>
@@ -463,7 +436,7 @@ export default function ProductHomePage() {
         ))}
       </section>
 
-      <section className={styles.storySection} id="story">
+      <section className={styles.storySection} id="made-by">
         {storySections.map((section, index) => (
           <article
             className={`${styles.storyRow} ${index % 2 === 1 ? styles.storyRowReverse : ""}`}
@@ -484,7 +457,7 @@ export default function ProductHomePage() {
         ))}
       </section>
 
-      <section className={styles.footerCta}>
+      <section className={styles.footerCta} id="updates">
         <div className={styles.footerCard}>
           <div className={styles.footerEyebrow}>Design bold. Launch fast.</div>
           <div className={styles.footerActions}>

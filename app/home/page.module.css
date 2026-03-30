@@ -17,6 +17,7 @@
 .page {
   position: relative;
   display: block;
+  --landing-inline-padding: 120px;
   font-family:
     "Inter",
     -apple-system,
@@ -44,13 +45,27 @@
   right: 0;
   z-index: 100;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 28px;
+  justify-content: center;
+  padding: 0 var(--landing-inline-padding);
   height: 56px;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-synthesis: none;
+}
+
+.topbarInner {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 20px;
 }
 
 /* Framer "F" chevron logo */
@@ -60,6 +75,7 @@
   flex-shrink: 0;
   width: 28px;
   height: 28px;
+  justify-self: start;
 }
 
 .brandGlyph {
@@ -95,12 +111,15 @@
 .topbarNav {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 4px;
   flex: 1;
   justify-content: center;
+  min-width: 0;
 }
 
 .topbarNavLink {
+  flex: 0 0 auto;
+  font-family: inherit;
   font-size: 13.5px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.65);
@@ -116,13 +135,75 @@
   color: #ffffff;
 }
 
+.topbarNavLinkActive {
+  color: #ffffff;
+}
+
 .topbarActions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
-  min-width: 140px;
+  min-width: 120px;
   justify-content: flex-end;
+  justify-self: end;
+}
+
+.profileName {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: -0.01em;
+}
+
+.profileAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.topbarMenuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.topbarMenuButton span {
+  display: block;
+  width: 14px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.mobileNavPanel {
+  display: none;
+}
+
+.mobileNavLink {
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.mobileNavLinkActive {
+  color: #ffffff;
 }
 
 /* ============================================================
@@ -157,16 +238,16 @@
   padding: 100px 24px 48px;
   max-width: 800px;
   width: 100%;
+  margin: 0 auto;
 }
 
 /* ── The big headline — blue gradient exactly like Framer ── */
 .heroCopy h1 {
   margin: 0 0 24px;
   font-family:
-    "GT Walsheim Framer Medium",
-    "GT Walsheim Framer Medium Placeholder",
+    "GT Walsheim Framer Medium", "GT Walsheim Framer Medium Placeholder",
     sans-serif;
-  font-size: 92px;
+  font-size: 76px;
   font-weight: 500;
   line-height: 0.9;
   letter-spacing: -0.04em;
@@ -413,7 +494,7 @@
    ============================================================ */
 .learnSection {
   margin-top: 96px;
-  padding: 80px 24px 60px;
+  padding: 80px var(--landing-inline-padding) 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -481,6 +562,7 @@
 .featureStripSection {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  padding: 0 var(--landing-inline-padding);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -532,6 +614,7 @@
 .storySection {
   display: flex;
   flex-direction: column;
+  padding: 0 var(--landing-inline-padding);
 }
 
 .storyRow {
@@ -620,7 +703,7 @@
    FOOTER CTA
    ============================================================ */
 .footerCta {
-  padding: 100px 24px;
+  padding: 100px var(--landing-inline-padding);
   display: flex;
   justify-content: center;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -968,6 +1051,12 @@
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1024px) {
+  .page {
+    --landing-inline-padding: 40px;
+  }
+  .topbar {
+    padding: 0 var(--landing-inline-padding);
+  }
   .featureStripSection {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1004,8 +1093,50 @@
 }
 
 @media (max-width: 768px) {
+  .page {
+    --landing-inline-padding: 20px;
+  }
+  .topbar {
+    padding: 0 var(--landing-inline-padding);
+  }
+  .topbarInner {
+    grid-template-columns: auto 1fr auto;
+  }
   .topbarNav {
     display: none;
+  }
+  .topbarActions {
+    display: none;
+  }
+  .topbarMenuButton {
+    display: inline-flex;
+    justify-self: end;
+  }
+  .mobileNavPanel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 20px;
+    left: 20px;
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background: rgba(7, 7, 9, 0.96);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  .mobileNavLink {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    background: rgba(255, 255, 255, 0.03);
   }
   .heroCopy {
     padding: 80px 24px 36px;

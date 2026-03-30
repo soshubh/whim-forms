@@ -1,0 +1,228 @@
+.topbar {
+  --landing-inline-padding: 120px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--landing-inline-padding);
+  height: 56px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-synthesis: none;
+}
+
+.topbarInner {
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  justify-self: start;
+}
+
+.brandGlyph {
+  width: 20px;
+  height: 24px;
+  position: relative;
+  display: block;
+}
+
+.brandGlyph span {
+  display: block;
+  position: absolute;
+}
+
+.brandGlyph span:first-child {
+  width: 20px;
+  height: 12px;
+  background: #ffffff;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 100%, 0 0);
+  top: 0;
+  left: 0;
+}
+
+.brandGlyph span:last-child {
+  width: 10px;
+  height: 12px;
+  background: #ffffff;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 50%);
+  bottom: 0;
+  left: 0;
+}
+
+.topbarNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.topbarNavLink {
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  transition: color 0.12s ease;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "wght" 400;
+}
+
+.topbarNavLink:hover {
+  color: #ffffff;
+}
+
+.topbarNavLinkActive {
+  color: #ffffff;
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  min-width: 120px;
+  justify-content: flex-end;
+  justify-self: end;
+}
+
+.profileName {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: -0.01em;
+}
+
+.profileAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.topbarMenuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+.topbarMenuButton span {
+  display: block;
+  width: 14px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.mobileNavPanel {
+  display: none;
+}
+
+.mobileNavLink {
+  font-family: inherit;
+  text-decoration: none;
+}
+
+.mobileNavLinkActive {
+  color: #ffffff;
+}
+
+@media (max-width: 1024px) {
+  .topbar {
+    --landing-inline-padding: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .topbar {
+    --landing-inline-padding: 20px;
+  }
+
+  .topbarInner {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .topbarNav {
+    display: none;
+  }
+
+  .topbarActions {
+    display: none;
+  }
+
+  .topbarMenuButton {
+    display: inline-flex;
+    justify-self: end;
+  }
+
+  .mobileNavPanel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 20px;
+    left: 20px;
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background: rgba(7, 7, 9, 0.96);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .mobileNavLink {
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
