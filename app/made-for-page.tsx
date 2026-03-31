@@ -1,5 +1,5 @@
-import { LandingSubpageShell } from "../components/landing/subpage-shell";
-import styles from "../components/landing/subpage.module.css";
+import { LandingSubpageShell } from "./components/landing/subpage-shell";
+import styles from "./components/landing/subpage.module.css";
 
 const audiences = [
   {

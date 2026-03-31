@@ -18,10 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`font-sans ${roboto.variable} ${interHeading.variable}`}
-    >
+    <html lang="en" className={`${roboto.variable} ${interHeading.variable}`}>
       <body>{children}</body>
     </html>
   );

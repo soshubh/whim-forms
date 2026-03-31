@@ -1,10 +1,13 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import Image from "next/image";
+import { useState } from "react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 import { landingNavItems } from "./components/landing/nav-items";
+import { GridBackground } from "./components/landing/GridBackground";
 import { LandingTopbar } from "./components/landing/topbar";
 import { CustomActionButton } from "./components/form/button/custom-action-button";
 import {
@@ -13,11 +16,6 @@ import {
 } from "./components/form/custom-field-control";
 import { Shell } from "./components/form/fields/Shell";
 import styles from "./home/page.module.css";
-import basicsIcon from "./03/Asset → VdjblkbBOk1T2C7rNsuElAuo3A.png.png";
-import stylingIcon from "./03/Asset → fxMAHzmjNjLk3k2lQIJ0LBNRjo.png.png";
-import inputsIcon from "./03/Asset → pyGJZoHZM5ovVoKUfsx4V9LJzA4.png.png";
-import effectsIcon from "./03/Asset → KkC8eoTJqXzCDWuMDfb8sLZI.png.png";
-import variantsIcon from "./03/Asset → tzMLs6pZFGPgfkaKLJI4EFJYsw.png.png";
 
 const learnLinks = [
   "Basics",
@@ -27,29 +25,53 @@ const learnLinks = [
   "Variants",
 ];
 
-const learnAssets = [
-  basicsIcon,
-  stylingIcon,
-  inputsIcon,
-  effectsIcon,
-  variantsIcon,
-];
+const heroModes = ["Builder", "Validate", "Sheets", "Webhook"] as const;
+
+const heroModeMeta = {
+  Builder: {
+    chip: "Compose form structure, layout, and defaults in one place",
+    input: "framer-form-builder://compose/lead-capture",
+    cta: "Generate",
+    preview: "canvas",
+  },
+  Validate: {
+    chip: "Preview required, invalid, loading, and success states before export",
+    input: "validate://email-phone-program",
+    cta: "Check",
+    preview: "effects",
+  },
+  Sheets: {
+    chip: "Map fields into Google Sheets without breaking column structure",
+    input: "sheets://submit-application",
+    cta: "Connect",
+    preview: "sheets",
+  },
+  Webhook: {
+    chip: "Ship structured payloads into Zapier, CRMs, and internal workflows",
+    input: "webhook://gradright/lead-router",
+    cta: "Send",
+    preview: "webhooks",
+  },
+} satisfies Record<
+  (typeof heroModes)[number],
+  { chip: string; input: string; cta: string; preview: string }
+>;
 
 const previewSurfaceStyle = {
-  "--preview-field-border": "rgb(255 255 255 / 0.08)",
-  "--preview-field-surface": "rgb(255 255 255 / 0.03)",
-  "--preview-field-text": "#f5f7fb",
-  "--preview-field-label": "rgb(245 247 251 / 0.62)",
-  "--preview-field-helper": "#a7dcff",
-  "--preview-field-placeholder": "rgb(245 247 251 / 0.34)",
-  "--preview-field-focus": "#0a62ff",
+  "--preview-field-border": "rgba(17, 24, 39, 0.09)",
+  "--preview-field-surface": "rgba(255, 255, 255, 0.94)",
+  "--preview-field-text": "#111827",
+  "--preview-field-label": "rgba(17, 24, 39, 0.58)",
+  "--preview-field-helper": "#ff5a00",
+  "--preview-field-placeholder": "rgba(17, 24, 39, 0.34)",
+  "--preview-field-focus": "#ff5a00",
   "--preview-field-border-width": "1px",
   "--preview-field-focus-width": "1px",
-  "--preview-field-radius": "16px",
-  "--preview-input-padding-top": "12px",
-  "--preview-input-padding-right": "14px",
-  "--preview-input-padding-bottom": "12px",
-  "--preview-input-padding-left": "14px",
+  "--preview-field-radius": "18px",
+  "--preview-input-padding-top": "13px",
+  "--preview-input-padding-right": "15px",
+  "--preview-input-padding-bottom": "13px",
+  "--preview-input-padding-left": "15px",
   "--preview-input-size": "14px",
   "--preview-input-weight": "400",
   "--preview-label-size": "11px",
@@ -59,9 +81,9 @@ const previewSurfaceStyle = {
   "--preview-control-icon-size": "13px",
   "--preview-button-radius": "999px",
   "--preview-button-border-width": "1px",
-  "--preview-button-border-color": "rgb(255 255 255 / 0.72)",
-  "--preview-button-text-color": "#050608",
-  "--preview-primary": "#ffffff",
+  "--preview-button-border-color": "rgba(17, 24, 39, 0.08)",
+  "--preview-button-text-color": "#ffffff",
+  "--preview-primary": "#ff5a00",
   "--preview-button-padding-top": "12px",
   "--preview-button-padding-right": "18px",
   "--preview-button-padding-bottom": "12px",
@@ -340,15 +362,29 @@ function VisualMock({ variant }: { variant: string }) {
 }
 
 export default function ProductHomePage() {
+  const [activeHeroMode, setActiveHeroMode] =
+    useState<(typeof heroModes)[number]>("Builder");
+  const activeHero = heroModeMeta[activeHeroMode];
+
   return (
     <main className={styles.page} id="top">
+      <GridBackground />
       <section className={styles.hero}>
         <LandingTopbar items={landingNavItems} />
+        <div className={styles.promoBar}>
+          <a className={styles.promoBarLink} href="/builder">
+            Introducing interactive exports. Design forms, validate states, and
+            ship production-ready code from one builder. Try it now →
+          </a>
+        </div>
 
         <div className={styles.heroCopy}>
+          <Badge className={styles.heroEyebrow} variant="outline">
+            Production-ready Framer forms
+          </Badge>
           <h1>
             <span className={styles.heroFill}>Build Framer</span>{" "}
-            <span className={styles.heroOutline}>Forms,</span>{" "}
+            <span className={styles.heroAccent}>Forms,</span>{" "}
             <span className={styles.heroFill}>ship production-ready.</span>
           </h1>
           <p>
@@ -356,39 +392,15 @@ export default function ProductHomePage() {
             Google Sheets support, webhook delivery, and cleaner code from one builder.
           </p>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryButton} href="/builder">
-              Form Builder
-            </Link>
-            <span className={styles.freeChip}>Totally free</span>
+            <Button asChild className={styles.primaryButton} size="lg">
+              <Link href="/builder">Form Builder</Link>
+            </Button>
+            <Badge className={styles.freeChip} variant="outline">
+              Totally free
+            </Badge>
           </div>
         </div>
 
-        <div className={styles.heroStage}>
-          <div className={styles.heroArtwork}>
-            <div className={styles.heroGlow} />
-
-            <div className={styles.learnCards}>
-              {learnLinks.map((item, index) => (
-                <div className={styles.learnCard} key={item}>
-                  <div className={styles.learnCardIcon}>
-                    <Image
-                      alt=""
-                      className={styles.learnCardImage}
-                      src={learnAssets[index]}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className={styles.heroDevice}>
-              <div className={styles.heroDeviceTop} />
-              <div className={styles.heroDeviceCanvas}>
-                <VisualMock variant="setup" />
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       <section className={styles.learnSection} id="how-it-works">
@@ -443,12 +455,17 @@ export default function ProductHomePage() {
         <div className={styles.footerCard}>
           <div className={styles.footerEyebrow}>Design bold. Launch fast.</div>
           <div className={styles.footerActions}>
-            <Link className={styles.primaryButton} href="/builder">
-              Start for free
-            </Link>
-            <Link className={styles.secondaryButton} href="/builder">
-              Open builder
-            </Link>
+            <Button asChild className={styles.primaryButton} size="lg">
+              <Link href="/builder">Start for free</Link>
+            </Button>
+            <Button
+              asChild
+              className={styles.secondaryButton}
+              size="lg"
+              variant="outline"
+            >
+              <Link href="/builder">Open builder</Link>
+            </Button>
           </div>
         </div>
       </section>

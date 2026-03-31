@@ -2,16 +2,16 @@
 
 import { useMemo, useState } from "react";
 
-import { BuilderCenterPanel } from "../components/builder-center-panel";
-import { BuilderLeftPanel } from "../components/builder-left-panel";
-import { BuilderRightPanel } from "../components/builder-right-panel";
-import { BuilderTopbar } from "../components/builder-topbar";
+import { BuilderCenterPanel } from "./components/builder-center-panel";
+import { BuilderLeftPanel } from "./components/builder-left-panel";
+import { BuilderRightPanel } from "./components/builder-right-panel";
+import { BuilderTopbar } from "./components/builder-topbar";
 import type {
   FormActionButton,
   FormButtonState,
   FormButtonType,
-} from "../components/form/button/types";
-import type { Field, FieldType, WidthOption } from "../components/form/types";
+} from "./components/form/button/types";
+import type { Field, FieldType, WidthOption } from "./components/form/types";
 import {
   defaultButton,
   DEFAULT_CONFIG,
@@ -22,9 +22,9 @@ import {
   resolveStylingForPreview,
   type BuilderConfig,
   type PreviewMode,
-} from "../lib/builder-config";
-import { getDefaultButtonIcons } from "../lib/button-icons";
-import { generateAppsScript, generateFramerComponent } from "../lib/code-generators";
+} from "./lib/builder-config";
+import { getDefaultButtonIcons } from "./lib/button-icons";
+import { generateAppsScript, generateFramerComponent } from "./lib/code-generators";
 
 type TopbarTab = "builder" | "code" | "style" | "integrations";
 type RightPanelTab =
