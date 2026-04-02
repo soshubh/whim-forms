@@ -3,24 +3,23 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
 import { landingNavItems } from "./components/nav-items";
 import { GridBackground } from "./components/GridBackground";
 import { LandingTopbar } from "./components/topbar";
-import { CustomActionButton } from "../components/form/button/custom-action-button";
-import {
-  CustomSelectControl,
-  CustomTextControl,
-} from "../components/form/custom-field-control";
-import { Shell } from "../components/form/fields/Shell";
 import styles from "./page.module.css";
-
-const learnLinks = [
-  "Basics",
-  "Styling",
-  "Inputs",
-  "Effects",
-  "Variants",
-];
 
 const previewSurfaceStyle = {
   "--preview-field-border": "rgba(17, 24, 39, 0.09)",
@@ -59,40 +58,118 @@ const previewSurfaceStyle = {
 
 function BuilderFieldPreview() {
   return (
-    <div className={styles.realBuilderSurface} style={previewSurfaceStyle}>
-      <Shell label="Program" isHelperTextVisible={false}>
-        <CustomSelectControl
-          placeholder="Select an option"
-          options={["Growth Sprint", "Performance Creative", "Product Advisory"]}
-        />
-      </Shell>
+    <div className={styles.fieldLayerPreview} style={previewSurfaceStyle}>
+      <div className={`${styles.floatingField} ${styles.floatingFieldName}`}>
+        <div className={styles.fieldStack}>
+          <Label htmlFor="preview-first-name">First Name</Label>
+          <Input id="preview-first-name" placeholder="Enter first name" />
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldEmail}`}>
+        <div className={styles.fieldStack}>
+          <Label htmlFor="preview-email">Email</Label>
+          <Input
+            id="preview-email"
+            placeholder="Enter your work email"
+            type="email"
+          />
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldPhone}`}>
+        <div className={styles.fieldStack}>
+          <Label htmlFor="preview-phone">Phone</Label>
+          <Input id="preview-phone" placeholder="Enter phone number" type="tel" />
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldProgram}`}>
+        <div className={styles.fieldStack}>
+          <Label htmlFor="preview-program">Program</Label>
+          <Select>
+            <SelectTrigger id="preview-program">
+              <SelectValue placeholder="Select an option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="growth-sprint">Growth Sprint</SelectItem>
+              <SelectItem value="performance-creative">
+                Performance Creative
+              </SelectItem>
+              <SelectItem value="product-advisory">Product Advisory</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldNotes}`}>
+        <div className={styles.fieldStack}>
+          <Label htmlFor="preview-notes">Notes</Label>
+          <Textarea id="preview-notes" placeholder="Add context" />
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldPreference}`}>
+        <div className={styles.fieldStack}>
+          <Label>Contact preference</Label>
+          <RadioGroup className={styles.choiceStack} defaultValue="email">
+            <Label className={styles.choiceRow}>
+              <RadioGroupItem value="email" />
+              <span>Email</span>
+            </Label>
+            <Label className={styles.choiceRow}>
+              <RadioGroupItem value="phone" />
+              <span>Phone</span>
+            </Label>
+          </RadioGroup>
+        </div>
+      </div>
+      <div className={`${styles.floatingField} ${styles.floatingFieldUpdates}`}>
+        <div className={styles.fieldStack}>
+          <Label>Updates</Label>
+          <Label className={styles.choiceRow}>
+            <Checkbox />
+            <span>Send launch notes</span>
+          </Label>
+        </div>
+      </div>
     </div>
   );
 }
 
 function BuilderStatePreview() {
   return (
-    <div className={styles.realBuilderSurface} style={previewSurfaceStyle}>
-      <div className={styles.statePreviewGrid}>
-        <Shell label="Email" isHelperTextVisible={false}>
-          <CustomTextControl type="email" placeholder="Enter your work email" />
-        </Shell>
-        <Shell
-          label="Email"
-          requiredMessage="Please enter a valid email address."
-          isHelperTextVisible
-        >
-          <CustomTextControl type="email" placeholder="Enter your work email" />
-        </Shell>
+    <div className={styles.toggleList}>
+      <div className={styles.toggleRow}>
+        <div className={styles.toggleCopy}>
+          <div className={styles.toggleLabel}>Enable OTP verification</div>
+          <div className={styles.toggleDescription}>Verify mobile submissions before form send.</div>
+        </div>
+        <div className={`${styles.toggleSwitch} ${styles.toggleSwitchEnabled}`}>
+          <span className={styles.toggleKnob} />
+        </div>
       </div>
-      <div className={styles.realBuilderButton}>
-        <CustomActionButton
-          actionType="submit"
-          isLabelVisible
-          label="Submit Application"
-          state="idle"
-          variant="solid"
-        />
+      <div className={styles.toggleRow}>
+        <div className={styles.toggleCopy}>
+          <div className={styles.toggleLabel}>Enable Google Sheets</div>
+          <div className={styles.toggleDescription}>Sync submissions into a connected sheet automatically.</div>
+        </div>
+        <div className={`${styles.toggleSwitch} ${styles.toggleSwitchEnabled}`}>
+          <span className={styles.toggleKnob} />
+        </div>
+      </div>
+      <div className={styles.toggleRow}>
+        <div className={styles.toggleCopy}>
+          <div className={styles.toggleLabel}>Enable data webhook</div>
+          <div className={styles.toggleDescription}>Send structured payloads to your backend endpoint.</div>
+        </div>
+        <div className={`${styles.toggleSwitch} ${styles.toggleSwitchEnabled}`}>
+          <span className={styles.toggleKnob} />
+        </div>
+      </div>
+      <div className={styles.toggleRow}>
+        <div className={styles.toggleCopy}>
+          <div className={styles.toggleLabel}>Enable redirect on submit</div>
+          <div className={styles.toggleDescription}>Take visitors to a destination after successful submit.</div>
+        </div>
+        <div className={styles.toggleSwitch}>
+          <span className={styles.toggleKnob} />
+        </div>
       </div>
     </div>
   );
@@ -128,6 +205,78 @@ function BuilderInspectorPreview() {
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BuilderIntegrationPreview() {
+  return (
+    <div className={styles.mockPanel}>
+      <div className={styles.codePreviewCard}>
+        <div className={styles.codePreviewHeader}>
+          <span className={styles.codePreviewFile}>SubmitApplicationForm.tsx</span>
+          <button className={styles.codePreviewCopy} type="button">
+            Copy
+          </button>
+        </div>
+        <pre className={styles.codePreviewBody}>
+          <code>
+            <span className={styles.codeLine}>
+              <span className={styles.codeKeyword}>import</span> * as React{" "}
+              <span className={styles.codeKeyword}>from</span>{" "}
+              <span className={styles.codeString}>"react"</span>
+            </span>
+            <span className={styles.codeLine}>
+              <span className={styles.codeKeyword}>import</span>{" "}
+              {"{ addPropertyControls, ControlType }"}{" "}
+              <span className={styles.codeKeyword}>from</span>{" "}
+              <span className={styles.codeString}>"framer"</span>
+            </span>
+            <span className={styles.codeLine}>
+              <span className={styles.codeKeyword}>const</span>{" "}
+              <span className={styles.codeName}>fields</span> = [
+            </span>
+            <span className={styles.codeLine}>
+              {"  "}
+              {"{ id: "}
+              <span className={styles.codeString}>"field-email"</span>, type:{" "}
+              <span className={styles.codeString}>"email"</span>, label:{" "}
+              <span className={styles.codeString}>"Email"</span>{" },"}
+            </span>
+            <span className={styles.codeLine}>]</span>
+            <span className={styles.codeLine}>
+              <span className={styles.codeKeyword}>function</span>{" "}
+              <span className={styles.codeName}>validateField</span>(field, values) {"{"}
+            </span>
+            <span className={styles.codeLine}>
+              {"  "}
+              <span className={styles.codeKeyword}>if</span> (field.type ==={" "}
+              <span className={styles.codeString}>"email"</span>) {"{"} ... {"}"}
+            </span>
+            <span className={styles.codeLine}>{"}"}</span>
+            <span className={styles.codeLine}>
+              <span className={styles.codeKeyword}>export default</span>{" "}
+              <span className={styles.codeFunction}>function</span>{" "}
+              <span className={styles.codeName}>SubmitApplicationForm</span>(props) {"{"}
+            </span>
+            <span className={styles.codeLine}>
+              {"  "}
+              <span className={styles.codeKeyword}>const</span> [values, setValues] = React.useState(...)
+            </span>
+            <span className={styles.codeLine}>
+              {"  "}
+              <span className={styles.codeKeyword}>const</span> [errors, setErrors] = React.useState({"{}"})
+            </span>
+            <span className={styles.codeLine}>
+              {"  "}
+              <span className={styles.codeKeyword}>return</span> {"<form "}
+              <span className={styles.codeProp}>onSubmit</span>
+              {"={handleSubmit}>...</form>"}
+            </span>
+            <span className={styles.codeLine}>{"}"}</span>
+          </code>
+        </pre>
       </div>
     </div>
   );
@@ -362,15 +511,42 @@ export default function ProductHomePage() {
 
       <section className={styles.learnSection} id="how-it-works">
         <div className={styles.learnIntro}>
-          <div className={styles.sectionEyebrow}>Watch and learn</div>
-          <div className={styles.sectionTitle}>Start in seconds</div>
+          <div className={styles.sectionTitle}>One system. Structure to delivery.</div>
+          <p className={styles.sectionSubtitle}>
+            One source of truth for fields, styling, behavior, and submissions.
+          </p>
         </div>
-        <div className={styles.learnLinks}>
-          {learnLinks.map((item) => (
-            <a className={styles.learnPill} href="#story" key={item}>
-              {item}
-            </a>
-          ))}
+        <div className={styles.learnGrid}>
+          <article className={styles.learnCard}>
+            <h3 className={styles.learnCardTitle}>Build the field layer</h3>
+            <p className={styles.learnCardBody}>
+              Add text, email, phone, dropdowns, radios, checkboxes. Control
+              widths, layout, and responsive structure with system-level logic.
+            </p>
+            <div className={styles.learnCardVisual}>
+              <BuilderFieldPreview />
+            </div>
+          </article>
+          <article className={styles.learnCard}>
+            <h3 className={styles.learnCardTitle}>Ship data to the right places</h3>
+            <p className={styles.learnCardBody}>
+              Connect directly to Google Sheets and webhooks, no need to
+              rebuild payload logic or submission handling separately.
+            </p>
+            <div className={styles.learnCardVisual}>
+              <BuilderStatePreview />
+            </div>
+          </article>
+          <article className={styles.learnCard}>
+            <h3 className={styles.learnCardTitle}>Ship to destinations</h3>
+            <p className={styles.learnCardBody}>
+              Export production-ready Framer JSX. Route submissions to Google
+              Sheets and webhooks without rebuilding payload logic.
+            </p>
+            <div className={styles.learnCardVisual}>
+              <BuilderIntegrationPreview />
+            </div>
+          </article>
         </div>
       </section>
 

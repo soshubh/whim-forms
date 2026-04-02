@@ -405,17 +405,12 @@
   color: var(--landing-text);
 }
 
-.heroLine {
-  display: block;
-}
-
 /* solid blue fill words */
 .heroFill {
   color: var(--landing-text);
 }
 
-.heroAccent,
-.heroOutline {
+.heroAccent {
   color: var(--landing-accent);
 }
 
@@ -481,19 +476,26 @@
    LEARN SECTION
    ============================================================ */
 .learnSection {
-  margin-top: 48px;
+  width: min(
+    100%,
+    calc(var(--landing-max-width) + (var(--landing-inline-padding) * 2))
+  );
+  margin: 48px auto 0;
   padding: 96px var(--landing-inline-padding) 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 28px;
-  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
 }
 
 .learnIntro {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 
@@ -502,47 +504,72 @@
   font-weight: var(--marketing-weight-semibold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.32);
   color: rgba(17, 24, 39, 0.38);
 }
 
 .sectionTitle {
+  margin: 0;
+  max-width: 880px;
   font-size: var(--marketing-type-30);
   font-weight: var(--marketing-weight-bold);
   letter-spacing: -0.03em;
+  line-height: 1.15;
   color: var(--landing-text);
 }
 
-.learnLinks {
+.sectionSubtitle {
+  max-width: 520px;
+  margin: 0;
+  font-size: var(--marketing-type-15);
+  line-height: 1.65;
+  color: var(--landing-color-text-soft);
+}
+
+.learnCard,
+.featureStripCard,
+.storyRow,
+.footerCard,
+.realBuilderInspector,
+.subpageSection,
+.subpageUpdateCard {
+  border: 1px solid var(--landing-color-border);
+  box-shadow: var(--landing-shadow-panel);
+}
+
+.learnGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.learnCard {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28px 24px 24px;
+  border-radius: var(--landing-radius-xl);
+  background: rgba(255, 255, 255, 0.8);
 }
 
-.learnPill {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 18px;
-  border-radius: var(--landing-radius-pill);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  background: rgba(255, 255, 255, 0.74);
-  font-size: var(--marketing-type-13);
-  font-weight: var(--marketing-weight-medium);
-  color: var(--landing-color-text-muted);
-  text-decoration: none;
-  letter-spacing: -0.01em;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.learnPill:hover {
-  background: #ffffff;
+.learnCardTitle {
+  margin: 0;
+  font-size: var(--marketing-type-18);
+  font-weight: var(--marketing-weight-semibold);
+  letter-spacing: -0.03em;
   color: var(--landing-text);
-  border-color: rgba(17, 24, 39, 0.12);
+  line-height: 1.25;
+}
+
+.learnCardBody {
+  margin: 0;
+  font-size: var(--marketing-type-13);
+  line-height: 1.6;
+  color: var(--landing-color-text-muted);
+}
+
+.learnCardVisual {
+  margin-top: 8px;
 }
 
 /* ============================================================
@@ -551,6 +578,11 @@
 .featureStripSection {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  width: min(
+    100%,
+    calc(var(--landing-max-width) + (var(--landing-inline-padding) * 2))
+  );
+  margin: 0 auto;
   padding: 0 var(--landing-inline-padding);
   gap: 16px;
   border-top: 1px solid rgba(17, 24, 39, 0.08);
@@ -560,10 +592,8 @@
 
 .featureStripCard {
   padding: 36px 28px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: var(--landing-radius-xl);
   background: rgba(255, 255, 255, 0.76);
-  box-shadow: var(--landing-shadow-panel);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -604,6 +634,11 @@
 .storySection {
   display: flex;
   flex-direction: column;
+  width: min(
+    100%,
+    calc(var(--landing-max-width) + (var(--landing-inline-padding) * 2))
+  );
+  margin: 0 auto;
   gap: 20px;
   padding: 32px var(--landing-inline-padding) 0;
 }
@@ -612,11 +647,9 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 560px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: var(--landing-radius-2xl);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.76);
-  box-shadow: var(--landing-shadow-panel);
 }
 
 .storyRowReverse {
@@ -702,6 +735,11 @@
    FOOTER CTA
    ============================================================ */
 .footerCta {
+  width: min(
+    100%,
+    calc(var(--landing-max-width) + (var(--landing-inline-padding) * 2))
+  );
+  margin: 0 auto;
   padding: 100px var(--landing-inline-padding);
   display: flex;
   justify-content: center;
@@ -715,10 +753,8 @@
   gap: 32px;
   text-align: center;
   padding: 48px;
-  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: var(--landing-radius-2xl);
   background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--landing-shadow-panel);
 }
 
 .footerEyebrow {
@@ -747,26 +783,156 @@
   justify-content: center;
 }
 
-.realBuilderSurface {
+.fieldLayerPreview {
+  position: relative;
   width: 100%;
-  padding: 18px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: var(--landing-radius-xl);
-  box-shadow: var(--landing-shadow-panel);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  min-height: 360px;
+  overflow: hidden;
 }
 
-.statePreviewGrid {
+.floatingField {
+  position: absolute;
+  width: 240px;
+  animation: fieldDrift 7.6s ease-in-out infinite alternate;
+}
+
+.fieldStack {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.fieldStack :global(label) {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: rgba(17, 24, 39, 0.62);
+  letter-spacing: -0.01em;
+}
+
+.choiceStack {
+  display: grid;
   gap: 10px;
 }
 
-.realBuilderButton {
-  margin-top: 4px;
+.choiceRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(17, 24, 39, 0.76);
+}
+
+.floatingFieldName {
+  top: 28px;
+  left: -18px;
+  animation-delay: -0.2s;
+}
+
+.floatingFieldEmail {
+  top: 18px;
+  right: -26px;
+  animation-delay: -1.3s;
+}
+
+.floatingFieldPhone {
+  top: 140px;
+  left: 64px;
+  width: 260px;
+  animation-delay: -2.1s;
+}
+
+.floatingFieldProgram {
+  right: 12px;
+  bottom: 54px;
+  width: 250px;
+  animation-delay: -3.4s;
+}
+
+.floatingFieldNotes {
+  left: -8px;
+  bottom: 6px;
+  width: 230px;
+  animation-delay: -4.2s;
+}
+
+.floatingFieldPreference {
+  right: 36px;
+  top: 106px;
+  width: 196px;
+  animation-delay: -2.8s;
+}
+
+.floatingFieldUpdates {
+  left: 110px;
+  bottom: 88px;
+  width: 188px;
+  animation-delay: -5.1s;
+}
+
+.toggleList {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.toggleCopy {
+  display: grid;
+  gap: 4px;
+}
+
+.toggleLabel {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--landing-text);
+  line-height: 1.3;
+}
+
+.toggleDescription {
+  font-size: 11px;
+  color: var(--landing-color-text-soft);
+  line-height: 1.45;
+}
+
+.toggleSwitch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.1);
+  transition: background 0.18s ease;
+}
+
+.toggleSwitchEnabled {
+  background: color-mix(in srgb, var(--landing-color-primary) 88%, white);
+}
+
+.toggleKnob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.18);
+  transition: transform 0.18s ease;
+}
+
+.toggleSwitchEnabled .toggleKnob {
+  transform: translateX(18px);
 }
 
 .subpageMain {
@@ -816,10 +982,8 @@
 
 .subpageSection {
   padding: 28px;
-  border: 1px solid var(--landing-color-border);
   border-radius: var(--landing-radius-xl);
   background: var(--landing-color-surface-strong);
-  box-shadow: var(--landing-shadow-panel);
 }
 
 .subpageSectionTitle {
@@ -890,10 +1054,8 @@
 
 .subpageUpdateCard {
   padding: 24px;
-  border: 1px solid var(--landing-color-border);
   border-radius: 24px;
   background: var(--landing-color-surface-strong);
-  box-shadow: var(--landing-shadow-panel);
 }
 
 .subpageUpdateMeta {
@@ -942,11 +1104,9 @@
 .realBuilderInspector {
   width: 100%;
   background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: var(--landing-radius-xl);
   overflow: hidden;
   font-size: 12px;
-  box-shadow: var(--landing-shadow-panel);
 }
 
 :global(.builder-app-config-group) {
@@ -1043,6 +1203,89 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.codePreviewCard {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.codePreviewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.codePreviewFile {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(17, 24, 39, 0.82);
+  letter-spacing: -0.01em;
+}
+
+.codePreviewCopy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: rgba(17, 24, 39, 0.82);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.codePreviewBody {
+  margin: 0;
+  padding: 16px 14px 18px;
+  background: rgba(255, 255, 255, 0.88);
+  overflow: auto;
+}
+
+.codePreviewBody code {
+  display: grid;
+  gap: 8px;
+  font-family:
+    "SFMono-Regular", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.codeLine {
+  color: rgba(17, 24, 39, 0.78);
+  white-space: pre-wrap;
+}
+
+.codeKeyword {
+  color: #c2410c;
+}
+
+.codeFunction {
+  color: #9a3412;
+}
+
+.codeName {
+  color: #111827;
+}
+
+.codeString {
+  color: #047857;
+}
+
+.codeProp {
+  color: #ea580c;
 }
 
 .integrationHeader {
@@ -1226,6 +1469,15 @@
   text-align: center;
 }
 
+@keyframes fieldDrift {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(8px);
+  }
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -1235,6 +1487,12 @@
   }
   .topbar {
     padding: 0 var(--landing-inline-padding);
+  }
+  .learnGrid {
+    grid-template-columns: 1fr;
+  }
+  .fieldLayerPreview {
+    min-height: 320px;
   }
   .featureStripSection {
     grid-template-columns: repeat(2, 1fr);
@@ -1370,6 +1628,26 @@
   .subpageQuote {
     font-size: 20px;
   }
+  .learnCard {
+    padding: 22px 18px 18px;
+  }
+  .floatingField {
+    width: 210px;
+  }
+  .floatingFieldPhone,
+  .floatingFieldProgram {
+    width: 220px;
+  }
+  .floatingFieldPreference,
+  .floatingFieldUpdates {
+    width: 176px;
+  }
+  .floatingFieldName {
+    left: -10px;
+  }
+  .floatingFieldEmail {
+    right: -12px;
+  }
   .featureStripSection {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -1380,7 +1658,7 @@
   .storyCopy {
     padding: 40px 24px;
   }
-  .statePreviewGrid {
-    grid-template-columns: 1fr;
+  .toggleRow {
+    padding: 11px 12px;
   }
 }
