@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { LandingFooter } from "./footer";
 import { marketingDisplay, marketingSans } from "./marketing-fonts";
 import { landingNavItems } from "./nav-items";
 import styles from "../page.module.css";
@@ -31,6 +32,7 @@ export function LandingSubpageShell({
         </header>
         <div className={styles.subpageSections}>{children}</div>
       </div>
+      <LandingFooter />
     </main>
   );
 }
