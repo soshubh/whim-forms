@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { LandingSubpageShell } from "../components/subpage-shell";
 import styles from "../page.module.css";
 
@@ -13,16 +11,16 @@ export default function MadeByPage() {
       titleClassName={styles.madeByHeroTitle}
       ledeClassName={styles.madeByHeroLede}
     >
-      <section className={styles.subpageSection}>
+      <section className={styles.madeByQuoteBlock}>
         <blockquote className={styles.subpageQuote}>
-          I needed a way to build Framer forms that felt as capable as
-          hand-written code, without writing any of it.
+          "I wanted forms as capable as code. I just didn&apos;t want to write
+          them every single time."{" "}
+          <span className={styles.subpageQuoteMeta}>- SHUBH</span>
         </blockquote>
-        <div className={styles.subpageQuoteMeta}>Shubh</div>
       </section>
 
-      <section className={styles.subpageGrid}>
-        <article className={styles.subpageSection}>
+      <section className={`${styles.subpageGrid} ${styles.madeByStoryGrid}`}>
+        <article className={`${styles.subpageSection} ${styles.madeByStoryCard}`}>
           <h2 className={styles.subpageSectionTitle}>The original problem</h2>
           <p className={styles.subpageSectionBody}>
             Forms kept breaking between the design, the builder, and the final
@@ -31,7 +29,7 @@ export default function MadeByPage() {
             piece across the whole workflow.
           </p>
         </article>
-        <article className={styles.subpageSection}>
+        <article className={`${styles.subpageSection} ${styles.madeByStoryCard}`}>
           <h2 className={styles.subpageSectionTitle}>Why this product exists</h2>
           <p className={styles.subpageSectionBody}>
             To do everything code can do for a Framer form, without needing to
@@ -42,7 +40,7 @@ export default function MadeByPage() {
         </article>
       </section>
 
-      <section className={styles.subpageSection}>
+      <section className={`${styles.subpageSection} ${styles.madeByCoverageSection}`}>
         <h2 className={styles.subpageSectionTitle}>What the product covers</h2>
         <ul className={styles.subpageBulletList}>
           <li>Form structure that stays consistent from builder to export.</li>
@@ -52,15 +50,16 @@ export default function MadeByPage() {
         </ul>
       </section>
 
-      <section className={styles.subpageSection}>
+      <section className={`${styles.subpageSection} ${styles.madeByContributionSection}`}>
         <h2 className={styles.subpageSectionTitle}>Want to make it better?</h2>
         <p className={styles.subpageSectionBody}>
           WHIM is open. If something is missing, broken, or could work better
-          — you can say so or fix it directly.
+          — say so or fix it directly. Every contribution makes it better for
+          everyone who comes after.
         </p>
-        <div className={styles.subpageActionList}>
+        <div className={styles.madeByActionGrid}>
           <a
-            className={styles.subpageActionLink}
+            className={`${styles.secondaryButton} ${styles.madeByActionButton}`}
             href="https://github.com/soshubh/framer-form-builder"
             rel="noreferrer"
             target="_blank"
@@ -68,7 +67,7 @@ export default function MadeByPage() {
             Contribute on GitHub →
           </a>
           <a
-            className={styles.subpageActionLink}
+            className={`${styles.secondaryButton} ${styles.madeByActionButton}`}
             href="https://github.com/soshubh/framer-form-builder/issues"
             rel="noreferrer"
             target="_blank"
@@ -76,21 +75,12 @@ export default function MadeByPage() {
             Report a bug →
           </a>
           <a
-            className={styles.subpageActionLink}
+            className={`${styles.secondaryButton} ${styles.madeByActionButton}`}
             href="mailto:workforshubhsingh@gmail.com"
           >
             Share feedback →
           </a>
         </div>
-      </section>
-
-      <section className={styles.subpageSection}>
-        <h2 className={styles.subpageSectionTitle}>Open to everyone</h2>
-        <p className={styles.subpageSectionBody}>
-          Free to use. No account needed. No paywall. If you build something
-          with it or improve it, that makes it better for everyone who comes
-          after.
-        </p>
       </section>
     </LandingSubpageShell>
   );
